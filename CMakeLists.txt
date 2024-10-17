@@ -11,5 +11,20 @@ endif()
 
 project ("VisualText")
 
-# 包含子项目。
+# Visual Text SRC
+include_directories( ./ )
 add_subdirectory ("VisualText")
+add_subdirectory ("Core")
+
+# SDL
+set(SDL_STATIC on)
+add_subdirectory( External/SDL )
+include_directories( External/SDL/include )
+
+# SDL Extension
+add_subdirectory( External/SDL_image_pre )
+include_directories( External/SDL_image_pre/SDL_image/include )
+
+# ImgUI
+add_subdirectory( External/imgui_pre )
+include_directories( External/imgui_pre )

@@ -1,0 +1,45 @@
+#pragma once
+#ifndef VISUALTEXT_CORE_EXCEPTION_EXCEPTION_H_
+#define VISUALTEXT_CORE_EXCEPTION_EXCEPTION_H_
+#include <exception>
+#include <SDL3/SDL_messagebox.h>
+
+void exception_hinding();
+
+class logsis_init_error : public std::exception
+{
+public:
+	virtual const char* what() { return "[FATAL][LogSis] LogSis Init Error!"; }
+};
+class asset_manage_init_error : public std::exception
+{
+public:
+	virtual const char* what() { return "[FATAL][Asset] Asset Manage Init Error!"; }
+};
+class renderer_do_not_support : public std::exception
+{
+public:
+	virtual const char* what() { return "[FATAL][Video] VisualText does not support this system!"; }
+};
+class path_not_exists : public asset_manage_init_error
+{
+public:
+	virtual const char* what() { return "[FATAL][Asset] Asset path is not found!"; }
+};
+class SDL_error : public std::exception
+{
+public:
+	virtual const char* what() { return "[FATAL][Video] Windows System Error!"; }
+	const char* getErrorMsg() { return SDL_GetError(); }
+};
+class SDL_init_error : public SDL_error
+{
+public:
+	virtual const char* what() { return "[FATAL][Video] Windows System Init Error!"; }
+};
+class create_window_error : public SDL_error
+{
+public:
+	virtual const char* what() { return "[FATAL][Video] Can`t create window!"; }
+};
+#endif
