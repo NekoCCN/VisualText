@@ -1,0 +1,5 @@
+#pragma once
+#ifndef VISUALTEXT_CORE_VECTOR_RECT_H_
+#define VISUALTEXT_CORE_VECTOR_RECT_H_
+
+#endif

@@ -3,6 +3,8 @@
 set (VisualTextRequire
   SDL3-static
   imgui
+  SDL_image
+  SDL3_ttf-static
   VisualTextCore
 )
 

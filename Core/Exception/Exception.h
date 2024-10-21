@@ -37,6 +37,11 @@ class SDL_init_error : public SDL_error
 public:
 	virtual const char* what() { return "[FATAL][Video] Windows System Init Error!"; }
 };
+class monitor_index_error : public SDL_error
+{
+public:
+	virtual const char* what() { return "[FATAL][Video] Invalid monitor index"; }
+};
 class create_window_error : public SDL_error
 {
 public:

@@ -1,6 +1,31 @@
 ﻿//#include "VisualText.h"
-#include <Core/LogSystem/LogSystem.h>
-#include <Core/Window/Window.h>
+#include "VisualText.h"
+
+void ProjectInitializer::init_SDL_image()
+{
+    using namespace logsys;
+    if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_AVIF | IMG_INIT_JXL | IMG_INIT_TIF | IMG_INIT_WEBP))
+    {
+        lst.logIn("Image loader init additional format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+        additional_image_support_ = false;
+        if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_WEBP))
+        {
+            lst.logIn("Image loader init WEBP format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+            webp_support_ = false;
+            if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG))
+            {
+                lst.logIn("Image loader init error", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+                throw SDL_init_error();
+            }
+            else
+                lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+        }
+        else
+            lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+    }
+    else
+        lst.logIn("Image loader init initialization successful", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+}
 //using namespace std;
 //
 //int main()
@@ -11,28 +36,12 @@
 //	return 0;
 //}
 
-#include <imgui.h>
-#include <backends/imgui_impl_sdl3.h>
-#include <backends/imgui_impl_sdlrenderer3.h>
-#include <stdio.h>
-#include <SDL3/SDL.h>
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <SDL3/SDL_opengles2.h>
-#else
-#include <SDL3/SDL_opengl.h>
-#endif
-
 // Main code
 int main(int, char**)
 {
     // Setup SDL
-    initLogSys();
+    ProjectInitializer initializer;
     lst.setAllPriority(logsys::LOG_PRIORITY_INVALID);
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
-    {
-        printf("Error: SDL_Init(): %s\n", SDL_GetError());
-        return -1;
-    }
     lst.logIn("Start!", logsys::LOG_PRIORITY_CRITICAL, logsys::LOG_CATEGORY_INPUT);
     // Create window with SDL_Renderer graphics context
     Uint32 window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -165,8 +174,6 @@ int main(int, char**)
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
-
-    SDL_Quit();
 
     return 0;
 }

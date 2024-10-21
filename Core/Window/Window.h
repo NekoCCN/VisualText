@@ -1,6 +1,10 @@
+#pragma once
+#ifndef VISUALTEXT_CORE_WINDOW_WINDOW_H_
+#define VISUALTEXT_CORE_WINDOW_WINDOW_H_
 #include <SDL3/SDL.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/Exception/Exception.h>
+#include <Core/Monitor/Monitor.h>
 #include <string>
 #include <vector>
 
@@ -61,6 +65,14 @@ public:
 	{
 		return (SDL_GetWindowFlags(window_) & SDL_WINDOW_MINIMIZED);
 	}
+	bool setRenderDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+	{
+		SDL_SetRenderDrawColor(sdl_renderer_, r, g, b, a);
+	}
+	bool setRenderDrawColor(float r, float g, float b, float a)
+	{
+		SDL_SetRenderDrawColorFloat(sdl_renderer_, r, g, b, a);
+	}
 	void renderClear()
 	{
 		SDL_RenderClear(sdl_renderer_);
@@ -73,3 +85,4 @@ private:
 	SDL_Renderer* sdl_renderer_;
 	SDL_Window* window_;
 };
+#endif

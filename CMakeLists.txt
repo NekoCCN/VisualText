@@ -17,6 +17,7 @@ add_subdirectory ("VisualText")
 add_subdirectory ("Core")
 
 # SDL
+set (BUILD_SHARED_LIBS false)
 set(SDL_STATIC on)
 add_subdirectory( External/SDL )
 include_directories( External/SDL/include )
@@ -24,6 +25,8 @@ include_directories( External/SDL/include )
 # SDL Extension
 add_subdirectory( External/SDL_image_pre )
 include_directories( External/SDL_image_pre/SDL_image/include )
+add_subdirectory( External/Truetype_loader/SDL_ttf )
+include_directories( External/Truetype_loader/SDL_ttf/include )
 
 # ImgUI
 add_subdirectory( External/imgui_pre )
