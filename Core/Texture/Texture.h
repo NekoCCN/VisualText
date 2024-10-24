@@ -25,6 +25,7 @@ public:
 	{
 		return (&window) == (&texture_window_);
 	}
+	
 	~Texture()
 	{
 		SDL_DestroyTexture(texture_);

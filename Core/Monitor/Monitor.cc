@@ -24,7 +24,7 @@ std::vector<std::string> MonitorLists::getMonitorNameList()
 {
 	std::vector<std::string> tmp;
 	for (int i = 0; i < monitor_num_; ++i)
-		tmp.push_back(std::string(SDL_GetDisplayName(monitor_list_[i]));
+		tmp.push_back(std::string(SDL_GetDisplayName(monitor_list_[i])));
 	return tmp;
 }
 SDL_DisplayID MonitorLists::operator[](int index)

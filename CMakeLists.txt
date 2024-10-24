@@ -15,6 +15,7 @@ project ("VisualText")
 include_directories( ./ )
 add_subdirectory ("VisualText")
 add_subdirectory ("Core")
+add_subdirectory ("AssetManager")
 
 # SDL
 set (BUILD_SHARED_LIBS false)

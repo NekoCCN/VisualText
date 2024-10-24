@@ -9,6 +9,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <Core/Exception/Exception.h>
+#include <AssetManager/BinaryPackGen/BinaryPackGen.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/Window/Window.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
