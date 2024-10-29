@@ -16,6 +16,11 @@ class asset_manage_init_error : public std::exception
 public:
 	virtual const char* what() { return "[FATAL][Asset] Asset Manage Init Error!"; }
 };
+class invalid_file_format : public std::exception
+{
+public:
+	virtual const char* what() { return "[FATAL][Asset] Invalid file format!"; }
+};
 class renderer_do_not_support : public std::exception
 {
 public:

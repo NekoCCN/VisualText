@@ -26,13 +26,12 @@ void ProjectInitializer::init_SDL_image()
     else
         lst.logIn("Image loader init initialization successful", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
 }
-//using namespace std;
 
 int main()
 {
-    BinaryPackGenApplication BPGA;
-    std::vector<std::string> suffix{ "ttf", "doc", "exe", "png" };
-    BPGA.operator()(R"(E:\TestFile)", R"(E:\BinaryPack.vtbp)", suffix);
+    lst.setAllPriority(logsys::LOG_PRIORITY_INVALID);
+    ThemeTemplateGenerator TTG;
+    TTG.newGenerator(R"(E:\TestFile)", R"(E:\VtAsset.vtbp)");
 }
 
 // Main code

@@ -9,7 +9,8 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <Core/Exception/Exception.h>
-#include <AssetManager/BinaryPackGen/BinaryPackGen.h>
+#include <AssetManager/BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.h>
+#include <AssetManager/BinaryPack/BinaryPack.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/Window/Window.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -45,7 +46,7 @@ private:
 	void init()
 	{
 		init_exception_hinding();
-		initLogSys();
+		logsys::initLogSys();
 		init_SDL();
 		init_SDL_image();
 	}

@@ -1,7 +1,12 @@
 
 set(Asset_SRC
-  "BinaryPackGen/BinaryPackGen.h"
-  "BinaryPackGen/BinaryPackGen.cc"
+  "BinaryPackGenerate/BinaryPackGenerate.h"
+  "BinaryPackGenerate/BinaryPackGenerate.cc"
+  "BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.h"
+  "BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.cc"
+  "BinaryPack/BinaryPack.h"
+  "BinaryPack/BinaryPack.cc"
+  "ThemeTemplate/ThemeTemplate.h"
 )
 
 add_library(VisualTextAsset STATIC ${Asset_SRC})

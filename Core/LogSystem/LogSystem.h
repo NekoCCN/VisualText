@@ -10,11 +10,11 @@
 #include <fstream>
 #include <mutex>
 
-void initLogSys();
+
 
 namespace logsys
 {
-	void setAllPriority();
+	void initLogSys();
 	class StandardFilePush
 	{
 	protected:
