@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_image_pre/SDL_image" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/SDL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/freetype" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/freetype/subprojects/dlg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/harfbuzz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/imgui_pre/imgui" vcs="Git" />
+  </component>
+</project>

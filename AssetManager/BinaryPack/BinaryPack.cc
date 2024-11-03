@@ -1,7 +1,8 @@
 #include "BinaryPack.h"
 
-BinaryPack::BinaryPack(std::string path)
+vtasset::BinaryPack::BinaryPack(std::string path)
 {
+	using namespace vtcore;
 	fs_.open(path, std::ios_base::in | std::ios_base::binary);
 	if (!(fs_.is_open()))
 	{
@@ -25,8 +26,9 @@ BinaryPack::BinaryPack(std::string path)
 	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
 }
-BinaryPack::BinaryPack(std::ifstream& fs)
+vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
 {
+	using namespace vtcore;
 	fs_ = std::move(fs);
 	if (fs_.is_open())
 	{
@@ -50,8 +52,9 @@ BinaryPack::BinaryPack(std::ifstream& fs)
 	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
 }
-bool BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_size)
+bool vtasset::BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_size)
 {
+	using namespace vtcore;
 	if (buffer_size < toc_[index])
 		return 0;
 	if (file_num_ < index + 1)
@@ -63,8 +66,9 @@ bool BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_si
 	fs_.read(buffer, toc_[index]);
 	return 1;
 }
-bool BinaryPack::loadToBuffer(uint32_t index, char* buffer)
+bool vtasset::BinaryPack::loadToBuffer(uint32_t index, char* buffer)
 {
+	using namespace vtcore;
 	if (file_num_ < index + 1)
 		return 0;
 	uint64_t offset = 0;
@@ -74,15 +78,15 @@ bool BinaryPack::loadToBuffer(uint32_t index, char* buffer)
 	fs_.read(buffer, toc_[index]);
 	return 1;
 }
-uint32_t BinaryPack::getSize(uint32_t index)
+uint32_t vtasset::BinaryPack::getFileNum(uint32_t index)
 {
 	return file_num_;
 }
-uint64_t BinaryPack::getBufferSize(uint32_t index)
+uint64_t vtasset::BinaryPack::getBufferSize(uint32_t index)
 {
 	return toc_[index];
 }
-char* BinaryPack::operator[](uint32_t index)
+char* vtasset::BinaryPack::operator[](uint32_t index)
 {
 	if (file_num_ < index + 1)
 		return 0;
@@ -94,8 +98,9 @@ char* BinaryPack::operator[](uint32_t index)
 	fs_.read(tmp, toc_[index]);
 	return tmp;
 }
-bool BinaryPack::open(std::string path)
+bool vtasset::BinaryPack::open(std::string path)
 {
+	using namespace vtcore;
 	fs_.open(path, std::ios_base::in | std::ios_base::binary);
 	if (fs_.is_open())
 	{
@@ -120,8 +125,9 @@ bool BinaryPack::open(std::string path)
 	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
 	return true;
 }
-bool BinaryPack::open(std::ifstream& fs)
+bool vtasset::BinaryPack::open(std::ifstream& fs)
 {
+	using namespace vtcore;
 	fs_ = std::move(fs);
 	if (fs_.is_open())
 	{

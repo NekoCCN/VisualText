@@ -16,6 +16,7 @@ include_directories( ./ )
 add_subdirectory ("VisualText")
 add_subdirectory ("Core")
 add_subdirectory ("AssetManager")
+add_subdirectory ("Texture")
 
 # SDL
 set (BUILD_SHARED_LIBS false)

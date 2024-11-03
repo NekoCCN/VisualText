@@ -11,18 +11,13 @@ set(Core_SRC
   "Vector/Rect.h"
   "Monitor/Monitor.h"
   "Monitor/Monitor.cc"
-  "Texture/Texture.h"
-  "Texture/Texture.cc"
-  "Texture/FontLoader/Font.h"
-  "Texture/FontLoader/Font.cc")
+ )
 
 add_library(VisualTextCore STATIC ${Core_SRC})
 
 
 set(Core_Require
   SDL3-static
-  SDL_image
-  SDL3_ttf::SDL3_ttf
 )
 
 target_link_libraries(VisualTextCore PUBLIC ${Core_Require})

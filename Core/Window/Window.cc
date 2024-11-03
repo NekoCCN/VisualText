@@ -1,6 +1,6 @@
 #include "Window.h"
 
-Window::Window(const char* title, uint32_t width, uint32_t height, SDL_WindowFlags flags, const char* drive)
+vtcore::Window::Window(const char* title, uint32_t width, uint32_t height, SDL_WindowFlags flags, const char* drive)
 {
 	// window part
 	lst.logIn("Try to create a window", logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_VIDEO);

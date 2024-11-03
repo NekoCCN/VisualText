@@ -19,6 +19,9 @@
 #include <SDL3/SDL_opengl.h>
 #endif
 
+using namespace vtasset;
+using namespace vtcore;
+
 class ProjectInitializer
 {
 private:

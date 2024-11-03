@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-namespace ThemeTemplate
+namespace vtasset
 {
 	class ThemeAssetList
 	{

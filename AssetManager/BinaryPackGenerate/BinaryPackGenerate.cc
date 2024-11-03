@@ -1,7 +1,9 @@
 #include "BinaryPackGenerate.h"
 
-bool BinaryPackGenApplication::suffixGen(std::string src, std::string dst, const std::vector<std::string>& suffix_list)
+
+bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string dst, const std::vector<std::string>& suffix_list)
 {
+	using namespace vtcore;
 	list_ = suffix_list;  // Prepare to write file
 	SDL_Storage* storage = SDL_OpenFileStorage(src.c_str());
 	if (storage == nullptr)
@@ -150,8 +152,9 @@ bool BinaryPackGenApplication::suffixGen(std::string src, std::string dst, const
 
 	return true;
 }
-bool BinaryPackGenApplication::fileNameGen(std::string src, std::string dst, const std::vector<std::string>& filename_list)
+bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string dst, const std::vector<std::string>& filename_list)
 {
+	using namespace vtcore;
 	list_ = filename_list;  // Prepare to write file
 	SDL_Storage* storage = SDL_OpenFileStorage(src.c_str());
 	if (storage == nullptr)
@@ -290,8 +293,9 @@ bool BinaryPackGenApplication::fileNameGen(std::string src, std::string dst, con
 	fs.close();
 	return true;
 }
-bool BinaryPackGenApplication::operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd)
+bool vtasset::BinaryPackGenApplication::operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd)
 {
+	using namespace vtcore;
 	is_suffix_mode_ = (bool)smd;
 	if (is_suffix_mode_ == false)
 		return fileNameGen(path, dst, list);

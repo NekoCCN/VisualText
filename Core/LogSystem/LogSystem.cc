@@ -1,6 +1,6 @@
 #include "LogSystem.h"
 
-using namespace logsys;
+using namespace vtcore::logsys;
 
 void initLogSys()
 {
