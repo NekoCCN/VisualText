@@ -7,6 +7,7 @@ set (VisualTextRequire
   SDL3_ttf-static
   VisualTextCore
   VisualTextAsset
+  VisualTextTexture
 )
 
 add_executable (VisualText "VisualText.cpp" "VisualText.h")

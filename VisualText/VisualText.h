@@ -11,6 +11,7 @@
 #include <Core/Exception/Exception.h>
 #include <AssetManager/BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.h>
 #include <AssetManager/BinaryPack/BinaryPack.h>
+#include <Texture/Font/Font.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/Window/Window.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -19,8 +20,6 @@
 #include <SDL3/SDL_opengl.h>
 #endif
 
-using namespace vtasset;
-using namespace vtcore;
 
 class ProjectInitializer
 {
@@ -29,29 +28,46 @@ private:
 	bool webp_support_ = true;
 	void init_exception_hinding()
 	{
-		set_terminate(exception_hinding);
+		set_terminate(vtcore::exception_hinding);
 	}
 	void init_SDL_image();
 	void init_SDL()
 	{
+		using namespace vtcore;
 		using namespace logsys;
 		if (!SDL_InitSubSystem(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMEPAD))
 		{
-			lst.logIn("Window system initialization failed", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
-			lst.logIn(SDL_GetError(), LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+			vtcore::lst.logIn("Window system initialization failed", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+			vtcore::lst.logIn(SDL_GetError(), LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
 			throw SDL_init_error();
 		}
 		else
 		{
-			lst.logIn("Window system initialization successful", LOG_PRIORITY_INFO, LOG_CATEGORY_APPLICATION);
+			vtcore::lst.logIn("Window system initialization successful", LOG_PRIORITY_INFO, LOG_CATEGORY_APPLICATION);
+		}
+	}
+	void init_SDL_TTF()
+	{
+		using namespace vtcore;
+		using namespace logsys;
+		if (!TTF_Init())
+		{
+			vtcore::lst.logIn("TrueType system initialization failed", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+			vtcore::lst.logIn(SDL_GetError(), LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+			throw SDL_init_error();
+		}
+		else
+		{
+			vtcore::lst.logIn("Window system initialization successful", LOG_PRIORITY_INFO, LOG_CATEGORY_APPLICATION);
 		}
 	}
 	void init()
 	{
 		init_exception_hinding();
-		logsys::initLogSys();
+		vtcore::logsys::initLogSys();
 		init_SDL();
 		init_SDL_image();
+		init_SDL_TTF();
 	}
 public:
 	ProjectInitializer()
@@ -60,13 +76,13 @@ public:
 	}
 	ProjectInitializer(const char* name)
 	{
-		lst.enableFile(name);
+		vtcore::lst.enableFile(name);
 		init();
 	}
 	ProjectInitializer(bool st)
 	{
 		if (st == true)
-			lst.enableFile();
+			vtcore::lst.enableFile();
 		init();
 	}
 	~ProjectInitializer()

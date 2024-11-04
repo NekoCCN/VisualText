@@ -155,6 +155,7 @@ namespace vtcore
 			LogCategory category_ = LOG_CATEGORY_APPLICATION;
 		};
 	}
+	extern vtcore::logsys::StandardLogStream lst;
 }
-extern vtcore::logsys::StandardLogStream lst;
+
 #endif

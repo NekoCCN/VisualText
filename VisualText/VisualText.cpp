@@ -3,44 +3,71 @@
 
 void ProjectInitializer::init_SDL_image()
 {
-    using namespace logsys;
+    using namespace vtcore::logsys;
     if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_AVIF | IMG_INIT_JXL | IMG_INIT_TIF | IMG_INIT_WEBP))
     {
-        lst.logIn("Image loader init additional format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+        vtcore::lst.logIn("Image loader init additional format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
         additional_image_support_ = false;
         if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_WEBP))
         {
-            lst.logIn("Image loader init WEBP format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+            vtcore::lst.logIn("Image loader init WEBP format error", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
             webp_support_ = false;
             if (!IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG))
             {
-                lst.logIn("Image loader init error", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
-                throw SDL_init_error();
+                vtcore::lst.logIn("Image loader init error", LOG_PRIORITY_CRITICAL, LOG_CATEGORY_APPLICATION);
+                throw vtcore::SDL_init_error();
             }
             else
-                lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+                vtcore::lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
         }
         else
-            lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+            vtcore::lst.logIn("Image loader init incomplete initialization", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
     }
     else
-        lst.logIn("Image loader init initialization successful", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
+        vtcore::lst.logIn("Image loader init initialization successful", LOG_PRIORITY_WARN, LOG_CATEGORY_APPLICATION);
 }
 
 int main()
 {
-    lst.setAllPriority(logsys::LOG_PRIORITY_INVALID);
-    ThemeTemplateGenerator TTG;
-    TTG.newGenerator(R"(E:\TestFile)", R"(E:\VtAsset.vtbp)");
+    using namespace std;
+    ProjectInitializer PINIT;
+    vtasset::BinaryPack bpack(R"(E:\VtAsset.vtbp)");
+    vttexture::Font font1(bpack, 0, 16);
+    vtcore::Window window("NULL");
+    SDL_Surface* surface = font1.getTextSurface_Blended("A fox jump to a lazy dog", 23, { 0, 0, 0, 255 });
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(window.getRendererHinding(), surface);
+    if (texture == nullptr)
+    {
+        cout << SDL_GetError() << endl;
+    }
+    bool quit = false;
+    SDL_Event e;
+    while (!quit)
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_EVENT_QUIT)
+            {
+                quit = true;
+            }
+        }
+        SDL_SetRenderDrawColor(window.getRendererHinding(), 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(window.getRendererHinding());
+
+        SDL_RenderTexture(window.getRendererHinding(), texture, nullptr, nullptr);
+
+        window.presentRender();
+    }
 }
 
-// Main code
+
 //int main(int, char**)
 //{
+//    using namespace vtcore;
 //    // Setup SDL
 //    ProjectInitializer initializer;
-//    lst.setAllPriority(logsys::LOG_PRIORITY_INVALID);
-//    lst.logIn("Start!", logsys::LOG_PRIORITY_CRITICAL, logsys::LOG_CATEGORY_INPUT);
+//    vtcore::lst.setAllPriority(logsys::LOG_PRIORITY_INVALID);
+//    vtcore::lst.logIn("Start!", logsys::LOG_PRIORITY_CRITICAL, logsys::LOG_CATEGORY_INPUT);
 //    // Create window with SDL_Renderer graphics context
 //    Uint32 window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 //    Window win1("Example window", 1280, 720, window_flags);
