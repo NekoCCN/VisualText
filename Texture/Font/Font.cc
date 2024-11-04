@@ -21,7 +21,7 @@ vttexture::Font::Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize)
 	}
 	// maybe should not releases
 }
-SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, size_t length, SDL_Color foreground, int32_t wrap_length)
+SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color foreground, int32_t wrap_length, size_t length)
 {
 	if (wrap_length != 0)
 	{
@@ -44,37 +44,49 @@ SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, size_t le
 		return surface;
 	}
 }
-SDL_Surface* vttexture::Font::getTextSurface_LCD(const char* text, size_t length, SDL_Color foreground, SDL_Color background, int32_t wrap_length)
+SDL_Surface* vttexture::Font::getTextSurface_LCD(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length)
 {
 	if (wrap_length != 0)
 	{
 		SDL_Surface* surface = TTF_RenderText_LCD_Wrapped(font_, text, length, foreground, background, wrap_length);
 		if (surface == nullptr)
+		{
 			vtcore::lst.logIn("Can not render text.", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+			vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+		}
 		return surface;
 	}
 	else
 	{
 		SDL_Surface* surface = TTF_RenderText_LCD(font_, text, length, foreground, background);
 		if (surface == nullptr)
+		{
 			vtcore::lst.logIn("Can not render text.", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+			vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+		}
 		return surface;
 	}
 }
-SDL_Surface* vttexture::Font::getTextSurface_Shaded(const char* text, size_t length, SDL_Color foreground, SDL_Color background, int32_t wrap_length)
+SDL_Surface* vttexture::Font::getTextSurface_Shaded(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length)
 {
 	if (wrap_length != 0)
 	{
 		SDL_Surface* surface = TTF_RenderText_Shaded_Wrapped(font_, text, length, foreground, background, wrap_length);
 		if (surface == nullptr)
+		{
 			vtcore::lst.logIn("Can not render text.", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+			vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+		}
 		return surface;
 	}
 	else
 	{
 		SDL_Surface* surface = TTF_RenderText_Shaded(font_, text, length, foreground, background);
 		if (surface == nullptr)
+		{
 			vtcore::lst.logIn("Can not render text.", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+			vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
+		}
 		return surface;
 	}
 }

@@ -79,6 +79,12 @@ namespace vtcore
 		{
 			SDL_RenderClear(sdl_renderer_);
 		}
+		SDL_Rect getWindowRect()  // not include point, only have w,h
+		{
+			SDL_Rect tmp_rect{0, 0, 0, 0};
+			SDL_GetWindowSize(window_, &(tmp_rect.w), &(tmp_rect.h));
+			return tmp_rect;
+		}
 	private:
 		// Surface-based software rendering is no longer used by default.
 		// Software rendering cannot be used with hardware rendering

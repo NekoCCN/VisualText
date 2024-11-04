@@ -8,10 +8,10 @@ set(Core_SRC
   "Window/Window.cc" 
   "Vector/Color.h" 
   "Vector/Color.cc" 
-  "Vector/Rect.h"
+  "Vector/RatioRect.h"
   "Monitor/Monitor.h"
   "Monitor/Monitor.cc"
- )
+  "Vector/RatioPoint.h" "Vector/RatioPoint.cc" "Vector/RatioRect.cc")
 
 add_library(VisualTextCore STATIC ${Core_SRC})
 
