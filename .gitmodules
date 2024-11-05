@@ -8,5 +8,8 @@
 	path = External/SDL_image_pre/SDL_image
 	url = https://github.com/libsdl-org/SDL_image.git
 [submodule "External/Truetype_loader/SDL_ttf"]
-	path = External/Truetype_loader/SDL_ttf
+	path = External/SDL_ttf/SDL_ttf
 	url = https://github.com/libsdl-org/SDL_ttf.git
+[submodule "External/soloud_pre/soloud"]
+	path = External/soloud_pre/soloud
+	url = https://github.com/jarikomppa/soloud.git
