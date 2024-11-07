@@ -22,9 +22,9 @@ namespace vtcore
 		RatioRect() : display_rect_({ 0, 0, 0, 0 }), display_rect_ratio_({ 0, 0, 0, 0 }) {  }
 		RatioRect(Window& window, DisplayRectRatio dpr = { 0.5, 0.5, 0.6, 0.3 });
 		RatioRect(SDL_Rect sr, DisplayRectRatio dpr = { 0.5, 0.5, 0.6, 0.3 });
-		SDL_Rect getIntRect();  // Follow SDL's rectangular rules from top left to bottom right
-		SDL_FRect operator()();  // Follow SDL's rectangular rules from top left to bottom right
-		SDL_FRect getFloatRect();
+		SDL_Rect getIntRect(int w = 0, int h = 0);  // Follow SDL's rectangular rules from top left to bottom right
+		SDL_FRect operator()(float w = 0, float h = 0);  // Follow SDL's rectangular rules from top left to bottom right
+		SDL_FRect getFloatRect(float w = 0, float h = 0);
 		void resetDisplayRectRatio(DisplayRectRatio dpr)
 		{
 			display_rect_ratio_ = dpr;

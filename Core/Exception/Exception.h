@@ -13,6 +13,16 @@ namespace vtcore
 	public:
 		virtual const char* what() { return "[FATAL][LogSis] LogSis Init Error!"; }
 	};
+	class unknown_format_error : public std::exception
+	{
+	public:
+		virtual const char* what() { return "[ERROR][Asset] Unknown format."; }
+	};
+	class file_not_found_error : public std::exception
+	{
+	public:
+		virtual const char* what() { return "[ERROR][Asset] File do not exist."; }
+	};
 	class asset_manage_init_error : public std::exception
 	{
 	public:

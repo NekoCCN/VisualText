@@ -7,7 +7,8 @@ set(Asset_SRC
   "BinaryPack/BinaryPack.h"
   "BinaryPack/BinaryPack.cc"
   "ThemeTemplate/ThemeTemplate.h"
-)
+  "AssetPackStream/AssetPackStream.h" 
+  "AssetPackStream/AssetPackStream.cc")
 
 add_library(VisualTextAsset STATIC ${Asset_SRC})
 

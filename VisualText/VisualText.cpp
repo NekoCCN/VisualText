@@ -32,7 +32,7 @@ int main()
     using namespace std;
     ProjectInitializer PINIT;
     vtasset::BinaryPack bpack(R"(E:\VtAsset.vtbp)");
-    vttexture::Font font1(bpack, 0, 16);
+    vttexture::Font font1(bpack, 0, 32);
     vtcore::Window window("NULL", 1960, 1080);
     SDL_Surface* surface = font1.getTextSurface_Blended("A fox jump to a lazy dog!!", { 0, 0, 0, 255 });
     SDL_Texture* texture = SDL_CreateTextureFromSurface(window.getRendererHinding(), surface);
@@ -41,7 +41,8 @@ int main()
         cout << SDL_GetError() << endl;
     }
     bool quit = false;
-    SDL_FRect rect = { 0 ,0 ,texture->w, texture->h };
+    vtcore::RatioRect rect(window, {0.5, 0.5, 0.1, 0.1});
+    SDL_FRect r = rect(texture->w, texture->h);
     SDL_Event e;
     while (!quit)
     {
@@ -55,7 +56,7 @@ int main()
         SDL_SetRenderDrawColor(window.getRendererHinding(), 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(window.getRendererHinding());
 
-        SDL_RenderTexture(window.getRendererHinding(), texture, nullptr, &(rect));
+        SDL_RenderTexture(window.getRendererHinding(), texture, nullptr, &(r));
 
         window.presentRender();
     }

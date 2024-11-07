@@ -27,8 +27,8 @@ include_directories( External/SDL/include )
 # SDL Extension
 add_subdirectory( External/SDL_image_pre )
 include_directories( External/SDL_image_pre/SDL_image/include )
-add_subdirectory( External/Truetype_loader/SDL_ttf )
-include_directories( External/Truetype_loader/SDL_ttf/include )
+add_subdirectory( External/SDL_ttf/SDL_ttf )
+include_directories( External/SDL_ttf/SDL_ttf/include )
 
 # ImgUI
 add_subdirectory( External/imgui_pre )
