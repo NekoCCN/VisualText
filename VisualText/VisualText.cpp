@@ -31,6 +31,9 @@ int main()
 {
     using namespace std;
     ProjectInitializer PINIT;
+    vtcore::lst.setAllPriority(vtcore::logsys::LOG_PRIORITY_INVALID);
+    vtasset::ThemeTemplateGenerator TTG;
+    TTG.newGenerator(R"(E:\TestFile)", R"(E:\VtAsset.vtbp)");
     vtasset::BinaryPack bpack(R"(E:\VtAsset.vtbp)");
     vttexture::Font font1(bpack, 0, 32);
     vtcore::Window window("NULL", 1960, 1080);

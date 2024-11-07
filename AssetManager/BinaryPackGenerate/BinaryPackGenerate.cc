@@ -47,17 +47,27 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 	fs.write((const char*)&file_num_, sizeof(uint32_t));
 
 	toc_ = new uint64_t[file_num_];  // File Part2 : TOC
-	uint32_t toc_index = 0;
+	uint32_t toc_index = 1;
+	toc_[0] = 0;
+	uint64_t offset_tmp = 0;
 	for (const auto& suffix : list_)
 	{
 		index = 1;
 		while (SDL_GetStoragePathInfo(storage, (file_name = std::to_string(index++) + "." + suffix).c_str(), nullptr))
 		{
-			SDL_GetStorageFileSize(storage, file_name.c_str(), toc_ + toc_index);
+			SDL_GetStorageFileSize(storage, file_name.c_str(), &offset_tmp);
+			if (toc_index == 1)
+			{
+				toc_[toc_index] = offset_tmp;
+			}
+			else
+			{
+				toc_[toc_index] = offset_tmp + toc_[toc_index - 1];
+			}
 			++toc_index;
 		}
 	}
-	fs.write((char*)toc_, file_num_ * sizeof(uint64_t));
+	fs.write((char*)toc_, (file_num_ + 1) * sizeof(uint64_t));
 
 	uint64_t size;  // File Part3 : Resources
 	char* buffer{};
@@ -198,14 +208,24 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 	}
 	fs.write((const char*)&file_num_, sizeof(uint32_t));
 
-	toc_ = new uint64_t[file_num_];  // File Part2 : TOC
-	uint32_t toc_index = 0;
+	toc_ = new uint64_t[file_num_ + 1];  // File Part2 : TOC
+	uint32_t toc_index = 1;
+	uint64_t offset_tmp;
+	toc_[0] = 0;
 	for (const auto& file_name : list_)
 	{
-		SDL_GetStorageFileSize(storage, file_name.c_str(), toc_ + toc_index);
+		SDL_GetStorageFileSize(storage, file_name.c_str(), &offset_tmp);
+		if (toc_index == 1)
+		{
+			toc_[toc_index] = offset_tmp;
+		}
+		else
+		{
+			toc_[toc_index] = offset_tmp + toc_[toc_index - 1];
+		}
 		++toc_index;
 	}
-	fs.write((char*)toc_, file_num_ * sizeof(uint64_t));
+	fs.write((char*)toc_, (file_num_ + 1) * sizeof(uint64_t));
 
 	uint64_t size;  // File Part3 : Resources
 	char* buffer{};
@@ -284,6 +304,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
+
 			lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 			SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
 			fs.write(buffer, size);
@@ -293,7 +314,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 	fs.close();
 	return true;
 }
-bool vtasset::BinaryPackGenApplication::operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd)
+bool vtasset::BinaryPackGenApplication::operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd)  // dont add dot(.)
 {
 	using namespace vtcore;
 	is_suffix_mode_ = (bool)smd;

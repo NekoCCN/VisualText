@@ -15,21 +15,30 @@ namespace vtasset
 		ASSET_FORMAT_FONT,
 		ASSET_FORMAT_NONE
 	};
+	struct MsgNode
+	{
+		char msg[151] = "NULL";
+		bool is_choice = false;
+		char choice[8][21]{};
+
+	};
 	struct AssetStruct  // Change with caution
 	{
 		uint32_t index;
 		uint64_t toc_offset;
-		char asset_label[24] = "NULL";
+		char asset_label[11] = "NULL";
 		bool is_permanent = false;
 		AssetFormatList asset_format_list = ASSET_FORMAT_NONE;
 	};
 	struct AssetPushStruct  // Change with caution
 	{
 		std::string file_name;
-		char asset_label_[24] = "NULL";
+		std::string asset_label_ = "NULL";
+		
 		bool is_permanent = false;
 		bool is_init_load = false;
 		AssetFormatList asset_format_list = ASSET_FORMAT_NONE;
+
 	};
 	class AssetPackStream
 	{

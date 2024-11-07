@@ -22,9 +22,9 @@ vtasset::BinaryPack::BinaryPack(std::string path)
 	}
 	is_ready_ = true;
 	fs_.read((char*)&file_num_, sizeof(uint32_t));
-	toc_ = new uint64_t[file_num_];
-	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
-	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
+	toc_ = new uint64_t[file_num_ + 1];
+	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }
 vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
 {
@@ -48,9 +48,9 @@ vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
 	}
 	is_ready_ = true;
 	fs_.read((char*)&file_num_, sizeof(uint32_t));
-	toc_ = new uint64_t[file_num_];
-	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
-	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
+	toc_ = new uint64_t[file_num_ + 1];
+	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }
 bool vtasset::BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_size)
 {
@@ -59,11 +59,9 @@ bool vtasset::BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t 
 		return 0;
 	if (file_num_ < index + 1)
 		return 0;
-	uint64_t offset = 0;
-	for (uint32_t i = 0; i < index; ++i)
-		offset += toc_[i];
+	uint64_t offset = toc_[index];
 	fs_.seekg(offset + resource_offset_, std::ios_base::beg);
-	fs_.read(buffer, toc_[index]);
+	fs_.read(buffer, getBufferSize(index));
 	return 1;
 }
 bool vtasset::BinaryPack::loadToBuffer(uint32_t index, char* buffer)
@@ -71,9 +69,7 @@ bool vtasset::BinaryPack::loadToBuffer(uint32_t index, char* buffer)
 	using namespace vtcore;
 	if (file_num_ < index + 1)
 		return 0;
-	uint64_t offset = 0;
-	for (uint32_t i = 0; i < index; ++i)
-		offset += toc_[i];
+	uint64_t offset = toc_[index];
 	fs_.seekg(offset + resource_offset_, std::ios_base::beg);
 	fs_.read(buffer, toc_[index]);
 	return 1;
@@ -84,18 +80,15 @@ uint32_t vtasset::BinaryPack::getFileNum(uint32_t index)
 }
 uint64_t vtasset::BinaryPack::getBufferSize(uint32_t index)
 {
-	return toc_[index];
+	return toc_[index + 1] - toc_[index];
 }
 char* vtasset::BinaryPack::operator[](uint32_t index)
 {
 	if (file_num_ < index + 1)
 		return 0;
-	uint64_t offset = 0;
-	for (uint32_t i = 0; i < index; ++i)
-		offset += toc_[i];
-	char* tmp = new char[toc_[index]];
-	fs_.seekg(offset + resource_offset_, std::ios_base::beg);
-	fs_.read(tmp, toc_[index]);
+	char* tmp = new char[getBufferSize(index)];
+	fs_.seekg(toc_[index] + resource_offset_, std::ios_base::beg);
+	fs_.read(tmp, getBufferSize(index));
 	return tmp;
 }
 bool vtasset::BinaryPack::open(std::string path)
@@ -121,9 +114,9 @@ bool vtasset::BinaryPack::open(std::string path)
 	is_ready_ = true;
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
 	fs_.read((char*)&file_num_, sizeof(uint32_t));
-	toc_ = new uint64_t[file_num_];
-	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
-	return true;
+	toc_ = new uint64_t[file_num_ + 1];
+	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }
 bool vtasset::BinaryPack::open(std::ifstream& fs)
 {
@@ -148,7 +141,7 @@ bool vtasset::BinaryPack::open(std::ifstream& fs)
 	is_ready_ = true;
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
 	fs_.read((char*)&file_num_, sizeof(uint32_t));
-	toc_ = new uint64_t[file_num_];
-	fs_.read((char*)toc_, sizeof(uint64_t) * file_num_);
-	return true;
+	toc_ = new uint64_t[file_num_ + 1];
+	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }

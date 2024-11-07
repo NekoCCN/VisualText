@@ -101,6 +101,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 	}
 	fs_.write((char*)initialize_loading_resource_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
 	delete[] initialize_loading_resource_point;
+	return *this;
 }
 void vtasset::AssetPackStream::getSuffixFormat(AssetPushStruct& APS, std::string suffix)
 {
@@ -146,7 +147,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const AssetPushSt
 	AssetStruct AS;
 	AS.index = toc_.size();  // index = size - 1
 	AS.asset_format_list = APS.asset_format_list;
-	strncat(AS.asset_label, APS.asset_label_, 24);
+	strncat(AS.asset_label, APS.asset_label_.c_str(), 24);
 	AS.is_permanent = APS.is_permanent;
 
 	uint64_t offset_tmp;
@@ -185,6 +186,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const std::string
 	APS.is_permanent = false;
 	APS.is_init_load = false;
 	APS.file_name = file_name;
+	
 	strncat(APS.asset_label_, file_name.c_str(), 24);
 
 	std::string suffix;
@@ -210,7 +212,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::pushFile(const std::string f
 	APS.is_permanent = is_permanent;
 	APS.is_init_load = is_init_load;
 	APS.file_name = file_name;
-	strncat(APS.asset_label_, file_name.c_str(), 24);
+	strncat(APS.asset_label_.c_str(), file_name.c_str(), 24);
 
 	std::string suffix;
 	for (auto& x : file_name)

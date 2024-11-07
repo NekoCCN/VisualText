@@ -66,6 +66,7 @@ private:
 	{
 		init_exception_hinding();
 		vtcore::logsys::initLogSys();
+		
 		init_SDL();
 		init_SDL_image();
 		init_SDL_TTF();
