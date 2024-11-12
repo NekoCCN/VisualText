@@ -14,6 +14,7 @@
 #include <Core/Vector/RatioRect.h>
 #include <Texture/Font/Font.h>
 #include <Core/LogSystem/LogSystem.h>
+#include <Core/Transform/Transform.h>
 #include <Core/Window/Window.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL3/SDL_opengles2.h>

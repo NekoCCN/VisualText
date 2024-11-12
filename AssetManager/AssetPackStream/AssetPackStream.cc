@@ -1,15 +1,16 @@
 #include "AssetPackStream.h"
 
-vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
+vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst) 
+	: index_offset_(0), resources_offset_(0)
 {
-	if (!is_initialized)
+	if (!is_initialized_)
 	{
-		 is_initialized = true;
-		 img_suffix_list = 
+		 is_initialized_ = true;
+		 img_suffix_list_ = 
 		 { ".png", ".jpg", ".jpeg", ".bmp", ".avif", ".cur", ".gif", ".ico", ".jxl", ".lbm", ".pnm", ".pcx", ".qol", ".svg", ".tif", ".webp", ".xcf", ".xpm", ".xv" };
-		 audio_suffix_list = 
+		 audio_suffix_list_ = 
 		 { ".mp3", ".wav", ".ogg", ".flac", ".opus" };
-		 font_suffix_list = 
+		 font_suffix_list_ = 
 		 { ".ttf", ".otf" };
 		 vtcore::lst.logIn("Asset pack stream initialized", vtcore::logsys::LOG_PRIORITY_INFO, vtcore::logsys::LOG_CATEGORY_APPLICATION);
 	}
@@ -39,31 +40,59 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 		lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		is_ready = false;
 	}
+
+	resources_offset_ = sizeof(uint64_t) + 2 * sizeof(uint32_t) + label_.size() + 1;
+
 	fs_.write(label_.c_str(), label_.size() + 1);
-	fs_.write((char*)&asset_num_, sizeof(uint32_t));
-	fs_.write((char*)&asset_num_, sizeof(uint32_t));
-	fs_.write((char*)&initialize_loading_resource_num_, sizeof(uint32_t));
+	fs_.write((char*)&resources_offset_, sizeof(uint64_t));  // resources offset
+	fs_.write((char*)&index_offset_, sizeof(uint64_t));  // index offset
+	uint64_t tmp1 = 0;
+	uint32_t tmp2 = 0;
+	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 }
 vtasset::AssetPackStream::~AssetPackStream()
 {
 	if (toc_.size() == 0)
 		return;
 
-	fs_.seekp(label_.size() + 1, std::ios_base::beg);
-	fs_.write((char*)&asset_num_, sizeof(uint32_t));
-	fs_.write((char*)&initialize_loading_resource_num_, sizeof(uint32_t));
-	AssetStruct* asset_point = new AssetStruct[toc_.size()];
+    // Write leading data
+	fs_.seekp(0, std::ios_base::end);  // index offset
+	index_offset_ = fs_.tellp();
+	fs_.seekp(label_.size() + 1 + sizeof(uint64_t), std::ios_base::beg);
+	fs_.write((char*)&index_offset_, sizeof(uint64_t));
+
+	uint64_t tmp1 = program_index_list_.size();
+	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
+	uint32_t tmp2 = toc_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
+	tmp2 = initialize_loading_resource_index_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
+
+	fs_.seekp(0, std::ios_base::beg);
+	
+	ProgramIndex* program_index_point = new ProgramIndex[program_index_list_.size()];  // Write program index
 	int i = 0;
+	for (ProgramIndex& x : program_index_list_)
+	{
+		program_index_point[i] = x;
+		++i;
+	}
+	fs_.write((char*)program_index_point, sizeof(ProgramIndex) * program_index_list_.size());
+	delete[] program_index_point;
+
+	AssetStruct* asset_point = new AssetStruct[toc_.size()];  // Write Toc
+	i = 0;
 	for (AssetStruct& x : toc_)
 	{
 		asset_point[i] = x;
 		++i;
 	}
-	fs_.seekp(0, std::ios_base::end);
 	fs_.write((char*)asset_point, sizeof(AssetStruct) * toc_.size());
 	delete[] asset_point;
 
-	uint64_t* initialize_loading_resource_point = new uint64_t[initialize_loading_resource_index_.size()];
+	uint64_t* initialize_loading_resource_point = new uint64_t[initialize_loading_resource_index_.size()];  // Write initialize loading resource`s index
 	i = 0;
 	for (uint64_t& x : initialize_loading_resource_index_)
 	{
@@ -72,27 +101,50 @@ vtasset::AssetPackStream::~AssetPackStream()
 	}
 	fs_.write((char*)initialize_loading_resource_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
 	delete[] initialize_loading_resource_point;
+
+	fs_.close();
 }
 vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 {
 	if (toc_.size() == 0)
 		return;
 
-	fs_.seekp(label_.size() + 1, std::ios_base::beg);
-	fs_.write((char*)&asset_num_, sizeof(uint32_t));
-	fs_.write((char*)&initialize_loading_resource_num_, sizeof(uint32_t));
-	AssetStruct* asset_point = new AssetStruct[toc_.size()];
+	// Write leading data
+	fs_.seekp(0, std::ios_base::end);  // index offset
+	index_offset_ = fs_.tellp();
+	fs_.seekp(label_.size() + 1 + sizeof(uint64_t), std::ios_base::beg);
+	fs_.write((char*)&index_offset_, sizeof(uint64_t));
+
+	uint64_t tmp1 = program_index_list_.size();
+	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
+	uint32_t tmp2 = toc_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
+	tmp2 = initialize_loading_resource_index_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
+
+	fs_.seekp(0, std::ios_base::beg);
+
+	ProgramIndex* program_index_point = new ProgramIndex[program_index_list_.size()];  // Write program index
 	int i = 0;
+	for (ProgramIndex& x : program_index_list_)
+	{
+		program_index_point[i] = x;
+		++i;
+	}
+	fs_.write((char*)program_index_point, sizeof(ProgramIndex) * program_index_list_.size());
+	delete[] program_index_point;
+
+	AssetStruct* asset_point = new AssetStruct[toc_.size()];  // Write Toc
+	i = 0;
 	for (AssetStruct& x : toc_)
 	{
 		asset_point[i] = x;
 		++i;
 	}
-	fs_.seekp(0, std::ios_base::end);
 	fs_.write((char*)asset_point, sizeof(AssetStruct) * toc_.size());
 	delete[] asset_point;
 
-	uint64_t* initialize_loading_resource_point = new uint64_t[initialize_loading_resource_index_.size()];
+	uint64_t* initialize_loading_resource_point = new uint64_t[initialize_loading_resource_index_.size()];  // Write initialize loading resource`s index
 	i = 0;
 	for (uint64_t& x : initialize_loading_resource_index_)
 	{
@@ -101,131 +153,125 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 	}
 	fs_.write((char*)initialize_loading_resource_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
 	delete[] initialize_loading_resource_point;
-	return *this;
-}
-void vtasset::AssetPackStream::getSuffixFormat(AssetPushStruct& APS, std::string suffix)
-{
-	if (APS.asset_format_list == ASSET_FORMAT_NONE)
-	{
-		for (auto& x : img_suffix_list)
-		{
-			if (suffix == x)
-			{
-				APS.asset_format_list = ASSET_FORMAT_IMAGE;
-				break;
-			}
-		}
-	}
-	if (APS.asset_format_list == ASSET_FORMAT_NONE)
-	{
-		for (auto& x : audio_suffix_list)
-		{
-			if (suffix == x)
-			{
-				APS.asset_format_list = ASSET_FORMAT_AUDIO;
-				break;
-			}
-		}
-	}
-	if (APS.asset_format_list == ASSET_FORMAT_NONE)
-	{
-		for (auto& x : font_suffix_list)
-		{
-			if (suffix == x)
-			{
-				APS.asset_format_list = ASSET_FORMAT_FONT;
-				break;
-			}
-		}
-	}
-}
-vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const AssetPushStruct APS)
-{
-	if (APS.asset_format_list == ASSET_FORMAT_NONE)
-		throw vtcore::unknown_format_error();
 
-	AssetStruct AS;
-	AS.index = toc_.size();  // index = size - 1
-	AS.asset_format_list = APS.asset_format_list;
-	strncat(AS.asset_label, APS.asset_label_.c_str(), 24);
-	AS.is_permanent = APS.is_permanent;
-
+	fs_.close();
+}
+vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramIndexPushStruct PIPS)
+{
+	using namespace vtcore;
+	AssetStruct* ASList = new AssetStruct[PIPS.asset_list_index_size];
 	uint64_t offset_tmp;
-	if (!SDL_GetStoragePathInfo(storage_, APS.file_name.c_str(), nullptr))
+
+	for (int i = 0; i < PIPS.asset_list_index_size; ++i)
 	{
-		std::ostringstream ost;
-		ost << APS.file_name << " in the list does not exist";
-		vtcore::lst.logIn(ost.str(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_ASSERT);
-		throw vtcore::file_not_found_error();
+		ASList[i].index = toc_.size() - 1;
+		ASList[i].is_permanent = PIPS.is_permanent;
+		ASList[i].asset_format = PIPS.asset_format_list[i];
+
+		if (!SDL_GetStoragePathInfo(storage_, PIPS.asset_filename_list[i].c_str(), nullptr))
+		{
+			std::ostringstream ost;
+			ost << PIPS.asset_filename_list[i].c_str() << " in the list does not exist";
+			vtcore::lst.logIn(ost.str(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_ASSERT);
+			throw vtcore::file_not_found_error();
+		}
+		if (toc_.size() == 0)
+		{
+			SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &offset_tmp);
+			ASList[i].toc_offset = offset_tmp;
+		}
+		else
+		{
+			SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &offset_tmp);
+			ASList[i].toc_offset = offset_tmp + toc_[ASList[i].index - 1].toc_offset;
+		}
+
+		toc_.push_back(ASList[i]);
+
+		if (PIPS.is_init_load == true)
+			initialize_loading_resource_index_.push_back(toc_[toc_.size() - 1].toc_offset);
+
+		// Start write resource
+		uint64_t size;
+		char* buffer{};
+		const uint64_t max_buffer_size = 209715200ll;
+		const uint64_t error_buffer_size = 52428800ll;
+		SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &size);
+		if (size >= max_buffer_size)
+		{
+			try
+			{
+				buffer = new char[max_buffer_size];
+			}
+			catch (std::bad_alloc)
+			{
+				vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				try
+				{
+					buffer = new char[error_buffer_size];
+				}
+				catch (std::bad_alloc)
+				{
+					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				}
+				uint32_t cycle = size / error_buffer_size;
+				lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i].c_str(), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				for (int i = 0; i < cycle; ++i)
+				{
+					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
+					fs_.write(buffer, error_buffer_size);
+				}
+				size %= max_buffer_size;
+				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+				fs_.write(buffer, size);
+				delete[] buffer;
+			}
+			uint32_t cycle = size / max_buffer_size;
+			lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+			for (int i = 0; i < cycle; ++i)
+			{
+				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, max_buffer_size);
+				fs_.write(buffer, max_buffer_size);
+			}
+			size %= max_buffer_size;
+			SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+			fs_.write(buffer, size);
+			delete[] buffer;
+		}
+		else
+		{
+			try
+			{
+				buffer = new char[size];
+			}
+			catch (std::bad_alloc)
+			{
+				lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				try
+				{
+					buffer = new char[error_buffer_size];
+				}
+				catch (std::bad_alloc)
+				{
+					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				}
+				uint32_t cycle = size / error_buffer_size;
+				lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				for (int i = 0; i < cycle; ++i)
+				{
+					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
+					fs_.write(buffer, error_buffer_size);
+				}
+				size %= max_buffer_size;
+				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+				fs_.write(buffer, size);
+				delete[] buffer;
+			}
+			lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+			SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+			fs_.write(buffer, size);
+			delete[] buffer;
+
+		}
 	}
-	if (toc_.size() == 0)
-	{
-		SDL_GetStorageFileSize(storage_, APS.file_name.c_str(), &offset_tmp);
-		AS.toc_offset = offset_tmp;
-	}
-	else
-	{
-		SDL_GetStorageFileSize(storage_, APS.file_name.c_str(), &offset_tmp);
-		AS.toc_offset = offset_tmp + toc_[AS.index - 1].toc_offset;
-	}
-
-	++asset_num_;
-	toc_.push_back(AS);
-
-	if (APS.is_init_load == true)
-	{
-		initialize_loading_resource_index_.push_back(toc_[toc_.size() - 1].toc_offset);
-		++initialize_loading_resource_num_;
-	}
-}
-vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const std::string file_name)
-{
-	bool get_suffix = false;
-
-	AssetPushStruct APS;
-	APS.is_permanent = false;
-	APS.is_init_load = false;
-	APS.file_name = file_name;
-	
-	strncat(APS.asset_label_, file_name.c_str(), 24);
-
-	std::string suffix;
-	for (auto& x : file_name)
-	{
-		if (x == '.')
-			get_suffix = true;
-		if (get_suffix == true)
-			suffix.push_back(x);
-	}
-	if (get_suffix == false)
-		throw vtcore::unknown_format_error();
-	
-	getSuffixFormat(APS, suffix);
-
-	operator<<(APS);
-}
-vtasset::AssetPackStream& vtasset::AssetPackStream::pushFile(const std::string file_name, bool is_permanent, bool is_init_load)
-{
-	bool get_suffix = false;
-
-	AssetPushStruct APS;
-	APS.is_permanent = is_permanent;
-	APS.is_init_load = is_init_load;
-	APS.file_name = file_name;
-	strncat(APS.asset_label_.c_str(), file_name.c_str(), 24);
-
-	std::string suffix;
-	for (auto& x : file_name)
-	{
-		if (x == '.')
-			get_suffix = true;
-		if (get_suffix == true)
-			suffix.push_back(x);
-	}
-	if (get_suffix == false)
-		throw vtcore::unknown_format_error();
-
-	getSuffixFormat(APS, suffix);
-
-	operator<<(APS);
 }

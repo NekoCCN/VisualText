@@ -38,7 +38,10 @@ int main()
     vttexture::Font font1(bpack, 0, 32);
     vtcore::Window window("NULL", 1960, 1080);
     SDL_Surface* surface = font1.getTextSurface_Blended("A fox jump to a lazy dog!!", { 0, 0, 0, 255 });
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(window.getRendererHinding(), surface);
+    SDL_Surface* dst1 = SDL_CreateSurface(surface->w, surface->h, surface->format);
+    // vtcore::transform::gaussian_blur(surface, dst1, 3, true);
+    // vtcore::transform::box_blur(surface, dst1, 3, true);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(window.getRendererHinding(), dst1);
     if (texture == nullptr)
     {
         cout << SDL_GetError() << endl;
