@@ -41,7 +41,7 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 		is_ready = false;
 	}
 
-	resources_offset_ = sizeof(uint64_t) + 2 * sizeof(uint32_t) + label_.size() + 1;
+	resources_offset_ = sizeof(uint64_t) + 3 * sizeof(uint32_t) + label_.size() + 1;
 
 	fs_.write(label_.c_str(), label_.size() + 1);
 	fs_.write((char*)&resources_offset_, sizeof(uint64_t));  // resources offset
@@ -49,6 +49,7 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 	uint64_t tmp1 = 0;
 	uint32_t tmp2 = 0;
 	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Node num
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 }
@@ -65,7 +66,11 @@ vtasset::AssetPackStream::~AssetPackStream()
 
 	uint64_t tmp1 = program_index_list_.size();
 	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
-	uint32_t tmp2 = toc_.size();
+
+	uint32_t tmp2 = node_list_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Node num
+
+	tmp2 = toc_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
 	tmp2 = initialize_loading_resource_index_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
@@ -81,6 +86,16 @@ vtasset::AssetPackStream::~AssetPackStream()
 	}
 	fs_.write((char*)program_index_point, sizeof(ProgramIndex) * program_index_list_.size());
 	delete[] program_index_point;
+
+	uint64_t* node_list_point = new uint64_t[node_list_.size()];  // Write Node list
+	i = 0;
+	for (uint64_t& x : node_list_)
+	{
+		node_list_point[i] = x;
+		++i;
+	}
+	fs_.write((char*)node_list_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
+	delete[] node_list_point;
 
 	AssetStruct* asset_point = new AssetStruct[toc_.size()];  // Write Toc
 	i = 0;
@@ -107,7 +122,7 @@ vtasset::AssetPackStream::~AssetPackStream()
 vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 {
 	if (toc_.size() == 0)
-		return;
+		return *this;
 
 	// Write leading data
 	fs_.seekp(0, std::ios_base::end);  // index offset
@@ -117,7 +132,11 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 
 	uint64_t tmp1 = program_index_list_.size();
 	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
-	uint32_t tmp2 = toc_.size();
+
+	uint32_t tmp2 = node_list_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Node num
+
+	tmp2 = toc_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
 	tmp2 = initialize_loading_resource_index_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
@@ -133,6 +152,16 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 	}
 	fs_.write((char*)program_index_point, sizeof(ProgramIndex) * program_index_list_.size());
 	delete[] program_index_point;
+
+	uint64_t* node_list_point = new uint64_t[node_list_.size()];  // Write Node list
+	i = 0;
+	for (uint64_t& x : node_list_)
+	{
+		node_list_point[i] = x;
+		++i;
+	}
+	fs_.write((char*)node_list_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
+	delete[] node_list_point;
 
 	AssetStruct* asset_point = new AssetStruct[toc_.size()];  // Write Toc
 	i = 0;
@@ -158,120 +187,143 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 }
 vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramIndexPushStruct PIPS)
 {
+	if (is_ready == false)
+		return *this;
 	using namespace vtcore;
 	AssetStruct* ASList = new AssetStruct[PIPS.asset_list_index_size];
-	uint64_t offset_tmp;
 
 	for (int i = 0; i < PIPS.asset_list_index_size; ++i)
 	{
 		ASList[i].index = toc_.size() - 1;
 		ASList[i].is_permanent = PIPS.is_permanent;
 		ASList[i].asset_format = PIPS.asset_format_list[i];
-
-		if (!SDL_GetStoragePathInfo(storage_, PIPS.asset_filename_list[i].c_str(), nullptr))
+		if (ASList[i].is_permanent == true)
 		{
-			std::ostringstream ost;
-			ost << PIPS.asset_filename_list[i].c_str() << " in the list does not exist";
-			vtcore::lst.logIn(ost.str(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_ASSERT);
-			throw vtcore::file_not_found_error();
+			ASList[i].permanent_buffer_index = initialize_loading_resource_index_.size();
+            initialize_loading_resource_index_.push_back(ASList[i].index);
 		}
-		if (toc_.size() == 0)
+		if (ASList[i].asset_format == assetformat::ASSET_FORMAT_FILE)
 		{
-			SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &offset_tmp);
-			ASList[i].toc_offset = offset_tmp;
-		}
-		else
-		{
-			SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &offset_tmp);
-			ASList[i].toc_offset = offset_tmp + toc_[ASList[i].index - 1].toc_offset;
-		}
-
-		toc_.push_back(ASList[i]);
-
-		if (PIPS.is_init_load == true)
-			initialize_loading_resource_index_.push_back(toc_[toc_.size() - 1].toc_offset);
-
-		// Start write resource
-		uint64_t size;
-		char* buffer{};
-		const uint64_t max_buffer_size = 209715200ll;
-		const uint64_t error_buffer_size = 52428800ll;
-		SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &size);
-		if (size >= max_buffer_size)
-		{
-			try
+			if (!SDL_GetStoragePathInfo(storage_, PIPS.asset_filename_list[i].c_str(), nullptr))
 			{
-				buffer = new char[max_buffer_size];
+				std::ostringstream ost;
+				ost << PIPS.asset_filename_list[i].c_str() << " in the list does not exist";
+				vtcore::lst.logIn(ost.str(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_ASSERT);
+				throw vtcore::file_not_found_error();
 			}
-			catch (std::bad_alloc)
+
+			if (toc_.size() == 0)
 			{
-				vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				ASList[i].toc_offset = 0;
+				SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &tmp_offset_);
+			}
+			else
+			{
+				ASList[i].toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
+				SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &tmp_offset_);
+			}
+
+			toc_.push_back(ASList[i]);
+
+			// Start write resource
+			uint64_t size;
+			char* buffer{};
+			const uint64_t max_buffer_size = 209715200ll;
+			const uint64_t error_buffer_size = 52428800ll;
+			SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &size);
+			if (size >= max_buffer_size)
+			{
 				try
 				{
-					buffer = new char[error_buffer_size];
+					buffer = new char[max_buffer_size];
 				}
 				catch (std::bad_alloc)
 				{
-					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					try
+					{
+						buffer = new char[error_buffer_size];
+					}
+					catch (std::bad_alloc)
+					{
+						lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					}
+					uint32_t cycle = size / error_buffer_size;
+					lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i].c_str(), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					for (int i = 0; i < cycle; ++i)
+					{
+						SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
+						fs_.write(buffer, error_buffer_size);
+					}
+					size %= max_buffer_size;
+					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+					fs_.write(buffer, size);
+					delete[] buffer;
 				}
-				uint32_t cycle = size / error_buffer_size;
-				lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i].c_str(), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-				for (int i = 0; i < cycle; ++i)
-				{
-					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
-					fs_.write(buffer, error_buffer_size);
-				}
-				size %= max_buffer_size;
-				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
-				fs_.write(buffer, size);
-				delete[] buffer;
-			}
-			uint32_t cycle = size / max_buffer_size;
-			lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-			for (int i = 0; i < cycle; ++i)
-			{
-				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, max_buffer_size);
-				fs_.write(buffer, max_buffer_size);
-			}
-			size %= max_buffer_size;
-			SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
-			fs_.write(buffer, size);
-			delete[] buffer;
-		}
-		else
-		{
-			try
-			{
-				buffer = new char[size];
-			}
-			catch (std::bad_alloc)
-			{
-				lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-				try
-				{
-					buffer = new char[error_buffer_size];
-				}
-				catch (std::bad_alloc)
-				{
-					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-				}
-				uint32_t cycle = size / error_buffer_size;
+				uint32_t cycle = size / max_buffer_size;
 				lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 				for (int i = 0; i < cycle; ++i)
 				{
-					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
-					fs_.write(buffer, error_buffer_size);
+					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, max_buffer_size);
+					fs_.write(buffer, max_buffer_size);
 				}
 				size %= max_buffer_size;
 				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
 				fs_.write(buffer, size);
 				delete[] buffer;
 			}
-			lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-			SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
-			fs_.write(buffer, size);
-			delete[] buffer;
+			else
+			{
+				try
+				{
+					buffer = new char[size];
+				}
+				catch (std::bad_alloc)
+				{
+					lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					try
+					{
+						buffer = new char[error_buffer_size];
+					}
+					catch (std::bad_alloc)
+					{
+						lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					}
+					uint32_t cycle = size / error_buffer_size;
+					lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					for (int i = 0; i < cycle; ++i)
+					{
+						SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, error_buffer_size);
+						fs_.write(buffer, error_buffer_size);
+					}
+					size %= max_buffer_size;
+					SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+					fs_.write(buffer, size);
+					delete[] buffer;
+				}
+				lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, size);
+				fs_.write(buffer, size);
+				delete[] buffer;
 
+			}
+		}
+		if (ASList[i].asset_format == assetformat::ASSET_FORMAT_STRING)
+		{
+			if (toc_.size() == 0)
+			{
+				ASList[i].toc_offset = 0;
+				tmp_offset_ = PIPS.string.size() + 1;
+			}
+			else
+			{
+				ASList[i].toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
+				tmp_offset_ = PIPS.string.size() + 1;
+			}
+            toc_.push_back(ASList[i]);
+			ASList[i].is_permanent = false;
+			lst.logIn(std::string("Include string ") + PIPS.string.substr(0, 10), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_APPLICATION);
+			fs_.write(PIPS.string.c_str(), PIPS.string.size() + 1);
 		}
 	}
 }

@@ -11,15 +11,14 @@ vttexture::Font::Font(SDL_IOStream* iostream, float ptsize, bool closeio)
 }
 vttexture::Font::Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize)
 {
-	char* buffer = BP.operator[](index);
-	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer, BP.getBufferSize(index));
+	buffer_ = BP.operator[](index);
+	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer_.getBufferPoint(), buffer_.getBufferByte());
 	font_ = TTF_OpenFontIO(iostream, true, ptsize);
 	if (font_ == nullptr)
 	{
 		vtcore::lst.logIn("Font creation failed, maybe can not open font file", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_VIDEO);
 		vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_VIDEO);
 	}
-	// maybe should not releases
 }
 SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color foreground, int32_t wrap_length, size_t length)
 {

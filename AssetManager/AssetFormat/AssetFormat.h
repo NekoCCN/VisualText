@@ -9,7 +9,8 @@ namespace vtasset
 		{
 			ASSET_FORMAT_FILE,
 			ASSET_FORMAT_STRING,
-			ASSET_FORMAT_INT
+			ASSET_FORMAT_INT,
+			ASSET_FORMAT_BOF,
 		};
 	}
 }

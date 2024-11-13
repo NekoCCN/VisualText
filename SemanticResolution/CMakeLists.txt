@@ -1,7 +1,7 @@
 
 set(SemanticResolution_SRC
   "SemanticTable/SemanticTable.h"
-  )
+   "SemanticResolution.h" "SemanticResolution.cc")
 
 add_library(VisualTextSemanticResolution STATIC ${SemanticResolution_SRC})
 

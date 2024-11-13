@@ -1,6 +1,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <cstdint>
 #include <AssetManager/BinaryPack/BinaryPack.h>
+#include <AssetManager/MemoryBuffer/MemoryBuffer.h>
 
 namespace vttexture
 {
@@ -8,6 +9,7 @@ namespace vttexture
 	{
 	private:
 		TTF_Font* font_ = nullptr;
+		vtasset::MemoryBuffer buffer_;
 	public:
 		Font(SDL_IOStream* iostream, float ptsize, bool closeio = true);
 		Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize);

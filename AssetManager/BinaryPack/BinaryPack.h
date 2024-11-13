@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/Exception/Exception.h>
+#include "../MemoryBuffer/MemoryBuffer.h"
 #include <fstream>
 #include <string>
 #include <utility>
@@ -31,7 +32,7 @@ namespace vtasset
 		bool loadToBuffer(uint32_t index, char* buffer);
 		uint32_t getFileNum(uint32_t index);
 		uint64_t getBufferSize(uint32_t index);
-		char* operator[](uint32_t index);
+		MemoryBuffer operator[](uint32_t index);
 		bool open(std::string path);
 		bool open(std::ifstream& fs);
 	};

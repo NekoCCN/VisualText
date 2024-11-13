@@ -20,6 +20,8 @@ vtasset::BinaryPack::BinaryPack(std::string path)
 			throw invalid_file_format();
 		}
 	}
+	delete[] str;
+
 	is_ready_ = true;
 	fs_.read((char*)&file_num_, sizeof(uint32_t));
 	toc_ = new uint64_t[file_num_ + 1];
@@ -82,14 +84,14 @@ uint64_t vtasset::BinaryPack::getBufferSize(uint32_t index)
 {
 	return toc_[index + 1] - toc_[index];
 }
-char* vtasset::BinaryPack::operator[](uint32_t index)
+vtasset::MemoryBuffer vtasset::BinaryPack::operator[](uint32_t index)
 {
 	if (file_num_ < index + 1)
-		return 0;
+		return MemoryBuffer();
 	char* tmp = new char[getBufferSize(index)];
 	fs_.seekg(toc_[index] + resource_offset_, std::ios_base::beg);
 	fs_.read(tmp, getBufferSize(index));
-	return tmp;
+	return MemoryBuffer(tmp, getBufferSize(index));
 }
 bool vtasset::BinaryPack::open(std::string path)
 {
