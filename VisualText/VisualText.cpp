@@ -33,13 +33,33 @@ int main()
     ProjectInitializer PINIT;
     vtcore::lst.setAllPriority(vtcore::logsys::LOG_PRIORITY_INVALID);
     vtasset::ThemeTemplateGenerator TTG;
-    TTG.newGenerator(R"(E:\TestFile)", R"(E:\VtAsset.vtbp)");
+
+   // vtasset::AssetPackStream stream(R"(E:\TestFile)", R"(E:\VtAsset.vtap)");
+   // vtasset::ProgramIndexPushStruct PIPS1;
+   // PIPS1.asset_filename_list[0] = "FONT1.ttf";
+   // PIPS1.asset_filename_list[1] = "FONT2.ttf";
+   // PIPS1.asset_list_index_size = 2;
+   // PIPS1.is_node = true;
+   // PIPS1.is_node_hide = true;
+   // PIPS1.is_permanent = false;
+   // stream << PIPS1;
+   // stream.endPackFile();
+
+    vtasset::AssetPack AP(R"(E:\VtAsset.vtap)");
+
+    vtasset::ProgramIndex PI;
+    AP >> PI;
+    ofstream ofs("E:/test.ttf", ios_base::binary);
+    vtasset::MemoryBuffer MB1;
+    AP.getMemoryBuffer(0, MB1);
+    ofs.write(MB1.getBufferPoint(), MB1.getBufferByte());
+
     vtasset::BinaryPack bpack(R"(E:\VtAsset.vtbp)");
     vttexture::Font font1(bpack, 0, 32);
     vtcore::Window window("NULL", 1960, 1080);
     SDL_Surface* surface = font1.getTextSurface_Blended("A fox jump to a lazy dog!!", { 0, 0, 0, 255 });
     SDL_Surface* dst1 = SDL_CreateSurface(surface->w, surface->h, surface->format);
-    // vtcore::transform::gaussian_blur(surface, dst1, 3, true);
+    vtcore::transform::gaussian_blur(surface, dst1, 2, true);
     // vtcore::transform::box_blur(surface, dst1, 3, true);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(window.getRendererHinding(), dst1);
     if (texture == nullptr)

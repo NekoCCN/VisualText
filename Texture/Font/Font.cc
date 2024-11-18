@@ -11,8 +11,8 @@ vttexture::Font::Font(SDL_IOStream* iostream, float ptsize, bool closeio)
 }
 vttexture::Font::Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize)
 {
-	buffer_ = BP.operator[](index);
-	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer_.getBufferPoint(), buffer_.getBufferByte());
+	buffer_ = BP[index];
+	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer_, BP.getBufferSize(index));
 	font_ = TTF_OpenFontIO(iostream, true, ptsize);
 	if (font_ == nullptr)
 	{

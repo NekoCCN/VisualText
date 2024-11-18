@@ -23,6 +23,11 @@ namespace vtcore
 	public:
 		virtual const char* what() { return "[ERROR][Asset] File do not exist."; }
 	};
+	class file_existed_error : public std::exception
+	{
+	public:
+		virtual const char* what() { return "[ERROR][Asset] File is existed."; }
+	};
 	class asset_manage_init_error : public std::exception
 	{
 	public:

@@ -12,20 +12,30 @@ namespace vtasset
 		char* buffer_ = nullptr;
 		uint64_t byte_size_;
 	public:
+		friend class AssetPack;
 		MemoryBuffer() = default;
-		MemoryBuffer(char* buffer, uint64_t byte_size)
+		MemoryBuffer(char* buffer, uint64_t byte_size) noexcept
 		{
 			buffer_ = buffer;
 			byte_size_ = byte_size;
 		}
-		MemoryBuffer(uint64_t byte_size)
+		MemoryBuffer(uint64_t byte_size) noexcept
 		{
 			byte_size_ = byte_size;
 			buffer_ = new char[byte_size_];
 		}
+		MemoryBuffer(MemoryBuffer&& buffer) noexcept
+		{
+			buffer_ = buffer.buffer_;
+			buffer.buffer_ = nullptr;
+			byte_size_ = buffer.byte_size_;
+			buffer.byte_size_ = 0;
+		}
 		~MemoryBuffer()
 		{
-			delete[] buffer_;
+			std::cout << "MemoryBuffer Destroyed" << std::hex << (int)buffer_ << std::endl;
+			if (buffer_ != nullptr)
+				delete[] buffer_;
 		}
 		uint64_t getBufferByte()
 		{
@@ -41,6 +51,18 @@ namespace vtasset
 		char* getBufferPoint()
 		{
 			return buffer_;
+		}
+		MemoryBuffer& operator=(MemoryBuffer&& buffer) noexcept
+		{
+            buffer_ = buffer.buffer_;
+			buffer.buffer_ = nullptr;
+			byte_size_ = buffer.byte_size_;
+			buffer.byte_size_ = 0;
+			return *this;
+		}
+		bool isEmpty()
+		{
+			return ( buffer_ == nullptr || byte_size_ == 0 );
 		}
 	};
 }

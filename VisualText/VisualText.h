@@ -11,6 +11,8 @@
 #include <Core/Exception/Exception.h>
 #include <AssetManager/BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.h>
 #include <AssetManager/BinaryPack/BinaryPack.h>
+#include <AssetManager/AssetPackStream/AssetPackStream.h>
+#include <AssetManager/AssetPack/AssetPack.h>
 #include <Core/Vector/RatioRect.h>
 #include <Texture/Font/Font.h>
 #include <Core/LogSystem/LogSystem.h>

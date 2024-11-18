@@ -16,14 +16,14 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 	}
 
 	using namespace vtcore;  // Prepare to write file
-	SDL_Storage* storage = SDL_OpenFileStorage(path.c_str());
-	if (storage == nullptr)
+	storage_ = SDL_OpenFileStorage(path.c_str());
+	if (storage_ == nullptr)
 	{
 		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		is_ready = false;
 	}
-	if (!(SDL_StorageReady(storage)))
+	if (!(SDL_StorageReady(storage_)))
 	{
 		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
@@ -33,15 +33,16 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 	{
 		lst.logIn("The target file already exists", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		is_ready = false;
+		throw vtcore::file_existed_error();
 	}
-	fs_.open(dst, std::ios_base::binary | std::ios_base::app | std::ios_base::out);
+	fs_.open(dst, std::ios_base::binary | std::ios_base::out);
 	if (!(fs_.is_open()))
 	{
 		lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		is_ready = false;
 	}
 
-	resources_offset_ = sizeof(uint64_t) + 3 * sizeof(uint32_t) + label_.size() + 1;
+	resources_offset_ = sizeof(uint64_t) * 3 + 3 * sizeof(uint32_t) + label_.size() + 1;
 
 	fs_.write(label_.c_str(), label_.size() + 1);
 	fs_.write((char*)&resources_offset_, sizeof(uint64_t));  // resources offset
@@ -61,7 +62,9 @@ vtasset::AssetPackStream::~AssetPackStream()
     // Write leading data
 	fs_.seekp(0, std::ios_base::end);  // index offset
 	index_offset_ = fs_.tellp();
+
 	fs_.seekp(label_.size() + 1 + sizeof(uint64_t), std::ios_base::beg);
+
 	fs_.write((char*)&index_offset_, sizeof(uint64_t));
 
 	uint64_t tmp1 = program_index_list_.size();
@@ -75,7 +78,7 @@ vtasset::AssetPackStream::~AssetPackStream()
 	tmp2 = initialize_loading_resource_index_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 
-	fs_.seekp(0, std::ios_base::beg);
+	fs_.seekp(0, std::ios_base::end);
 	
 	ProgramIndex* program_index_point = new ProgramIndex[program_index_list_.size()];  // Write program index
 	int i = 0;
@@ -124,24 +127,30 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 	if (toc_.size() == 0)
 		return *this;
 
-	// Write leading data
 	fs_.seekp(0, std::ios_base::end);  // index offset
+	fs_.clear();
 	index_offset_ = fs_.tellp();
+	
+	fs_.clear();
 	fs_.seekp(label_.size() + 1 + sizeof(uint64_t), std::ios_base::beg);
+	fs_.clear();
+
 	fs_.write((char*)&index_offset_, sizeof(uint64_t));
 
 	uint64_t tmp1 = program_index_list_.size();
-	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
+	fs_.write((char*)&tmp1, sizeof(uint64_t)); // Program_Index num
 
 	uint32_t tmp2 = node_list_.size();
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Node num
+	fs_.write((char*)&tmp2, sizeof(uint32_t)); // Node num
 
 	tmp2 = toc_.size();
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
-	tmp2 = initialize_loading_resource_index_.size();
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
+	fs_.write((char*)&tmp2, sizeof(uint32_t)); // TOC num
 
-	fs_.seekp(0, std::ios_base::beg);
+	tmp2 = initialize_loading_resource_index_.size();
+	fs_.write((char*)&tmp2, sizeof(uint32_t)); // Init_resource num
+
+
+	fs_.seekp(0, std::ios_base::end);
 
 	ProgramIndex* program_index_point = new ProgramIndex[program_index_list_.size()];  // Write program index
 	int i = 0;
@@ -160,7 +169,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 		node_list_point[i] = x;
 		++i;
 	}
-	fs_.write((char*)node_list_point, sizeof(uint64_t) * initialize_loading_resource_index_.size());
+	fs_.write((char*)node_list_point, sizeof(uint64_t) * node_list_.size());
 	delete[] node_list_point;
 
 	AssetStruct* asset_point = new AssetStruct[toc_.size()];  // Write Toc
@@ -184,17 +193,18 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::endPackFile()
 	delete[] initialize_loading_resource_point;
 
 	fs_.close();
+	return *this;
 }
 vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramIndexPushStruct PIPS)
 {
 	if (is_ready == false)
 		return *this;
 	using namespace vtcore;
-	AssetStruct* ASList = new AssetStruct[PIPS.asset_list_index_size];
 
+	AssetStruct* ASList = new AssetStruct[PIPS.asset_list_index_size];
 	for (int i = 0; i < PIPS.asset_list_index_size; ++i)
 	{
-		ASList[i].index = toc_.size() - 1;
+		ASList[i].index = toc_.size();
 		ASList[i].is_permanent = PIPS.is_permanent;
 		ASList[i].asset_format = PIPS.asset_format_list[i];
 		if (ASList[i].is_permanent == true)
@@ -326,4 +336,23 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 			fs_.write(PIPS.string.c_str(), PIPS.string.size() + 1);
 		}
 	}
+
+	ProgramIndex PI;
+	PI.asset_list_index_size = PIPS.asset_list_index_size;
+	for (int i = 0; i < PIPS.asset_list_index_size; ++i)
+	{
+		PI.asset_list_index[i] = ASList[i].index;
+	}
+	PI.command = PIPS.command;
+	for (int i = 0; i < 3; ++i)
+		PI.command_argument[i] = PIPS.command_argument[i];
+	PI.is_init_load = PIPS.is_init_load;
+	PI.is_node = PIPS.is_node;
+	PI.is_node_hide = PIPS.is_node_hide;
+	PI.is_permanent = PIPS.is_permanent;
+	memcpy(PI.node_name, PIPS.node_name, 32);
+	program_index_list_.push_back(PI);
+
+	if (PI.is_node == true)
+		node_list_.push_back(program_index_list_.size() - 1);
 }

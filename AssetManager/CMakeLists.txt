@@ -9,7 +9,10 @@ set(Asset_SRC
   "ThemeTemplate/ThemeTemplate.h"
   "AssetPackStream/AssetPackStream.h" 
   "AssetPackStream/AssetPackStream.cc"
- "AssetPack/AssetPack.h" "AssetPack/AssetPack.cc" "AssetFormat/AssetFormat.h" "MemoryBuffer/MemoryBuffer.h")
+  "AssetPack/AssetPack.h" 
+  "AssetPack/AssetPack.cc"
+  "AssetFormat/AssetFormat.h"
+  "MemoryBuffer/MemoryBuffer.h")
 
 add_library(VisualTextAsset STATIC ${Asset_SRC})
 

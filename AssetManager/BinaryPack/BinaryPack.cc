@@ -84,14 +84,14 @@ uint64_t vtasset::BinaryPack::getBufferSize(uint32_t index)
 {
 	return toc_[index + 1] - toc_[index];
 }
-vtasset::MemoryBuffer vtasset::BinaryPack::operator[](uint32_t index)
+char* vtasset::BinaryPack::operator[](uint32_t index)
 {
 	if (file_num_ < index + 1)
-		return MemoryBuffer();
+		return nullptr;
 	char* tmp = new char[getBufferSize(index)];
 	fs_.seekg(toc_[index] + resource_offset_, std::ios_base::beg);
 	fs_.read(tmp, getBufferSize(index));
-	return MemoryBuffer(tmp, getBufferSize(index));
+	return tmp;
 }
 bool vtasset::BinaryPack::open(std::string path)
 {

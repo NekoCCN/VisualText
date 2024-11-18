@@ -1,3 +1,6 @@
+#pragma once
+#ifndef VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H_
+#define VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H_
 #include <Core/Exception/Exception.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/CommandList/CommandList.h>
@@ -24,8 +27,10 @@ namespace vtasset
 
 		bool is_permanent = false;
 		bool is_init_load = false;
+
 		bool is_node = false;
 		bool is_node_hide = false;
+		char node_name[32]{};
 
 		uint32_t command_argument[3]{};
 
@@ -39,8 +44,11 @@ namespace vtasset
 	{
 		bool is_permanent = false;
 		bool is_init_load = false;
+
 		bool is_node = false;
 		bool is_node_hide = false;
+		char node_name[32]{};
+
 		uint32_t command_argument[3]{};
 		uint16_t asset_list_index[16]{};
 		uint16_t asset_list_index_size = 0;
@@ -59,13 +67,12 @@ namespace vtasset
 
 		SDL_Storage* storage_;
 		std::ofstream fs_;
-		bool is_ready = false;
+		bool is_ready = true;
 		std::string label_ = "VisualTextAssetPack;";
-
-		static bool is_initialized_;
-		static std::vector<std::string> img_suffix_list_;
-		static std::vector<std::string> audio_suffix_list_;
-		static std::vector<std::string> font_suffix_list_;
+		bool is_initialized_;
+		std::vector<std::string> img_suffix_list_;
+		std::vector<std::string> audio_suffix_list_;
+		std::vector<std::string> font_suffix_list_;
 	public:
 		AssetPackStream(std::string path, std::string dst);
 		AssetPackStream& operator<<(const ProgramIndexPushStruct PIPS);
@@ -73,3 +80,5 @@ namespace vtasset
 		~AssetPackStream();
 	};
 }
+
+#endif
