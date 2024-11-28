@@ -16,14 +16,17 @@ namespace vtasset
 	struct AssetStruct  // TOC List, Change with caution
 	{
 		assetformat::AssetFormat asset_format = assetformat::ASSET_FORMAT_FILE;
-		uint32_t index;  
-		uint64_t toc_offset;
+		uint32_t index = 0;  
+		uint64_t toc_offset = 0;
 		bool is_permanent = false;
 		uint32_t permanent_buffer_index = 0;
 	};
 	struct ProgramIndexPushStruct  // Program Command List, Change with caution
 	{
-		vtcore::command::CommandList command;
+		vtcore::command::CommandList command = vtcore::command::error_null;
+
+		bool reuse_asset = false;
+		uint32_t reuse_asset_index[10]{};
 
 		bool is_permanent = false;
 		bool is_init_load = false;
@@ -34,11 +37,11 @@ namespace vtasset
 
 		uint32_t command_argument[3]{};
 
-		assetformat::AssetFormat asset_format_list[16]{};
-		std::string asset_filename_list[16]{};  // File Mode
+		assetformat::AssetFormat asset_format_list[10]{};
+		std::string asset_filename_list[10]{};  // File Mode
 		uint16_t asset_list_index_size = 0;
 
-		std::string string;  // String Mode
+		std::string string;  // String Mode	
 	};
 	struct ProgramIndex
 	{
@@ -50,9 +53,9 @@ namespace vtasset
 		char node_name[32]{};
 
 		uint32_t command_argument[3]{};
-		uint16_t asset_list_index[16]{};
+		uint32_t asset_list_index[10]{};
 		uint16_t asset_list_index_size = 0;
-		vtcore::command::CommandList command;
+		vtcore::command::CommandList command = vtcore::command::error_null;
 	};
 	class AssetPackStream
 	{
@@ -69,14 +72,18 @@ namespace vtasset
 		std::ofstream fs_;
 		bool is_ready = true;
 		std::string label_ = "VisualTextAssetPack;";
-		bool is_initialized_;
+		bool is_initialized_ = false;
 		std::vector<std::string> img_suffix_list_;
 		std::vector<std::string> audio_suffix_list_;
 		std::vector<std::string> font_suffix_list_;
 	public:
 		AssetPackStream(std::string path, std::string dst);
 		AssetPackStream& operator<<(const ProgramIndexPushStruct PIPS);
-		AssetPackStream& endPackFile();
+		bool endPackFile();
+		size_t getTocTopIndex()
+		{
+			return toc_.size() - 1;
+		}
 		~AssetPackStream();
 	};
 }

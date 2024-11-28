@@ -18,6 +18,11 @@ namespace vtcore
 	public:
 		virtual const char* what() { return "[ERROR][Asset] Unknown format."; }
 	};
+	class syntax_error_error : public std::exception
+	{
+	public:
+		virtual const char* what() { return "[ERROR][Asset] Syntax Error."; }
+	};
 	class file_not_found_error : public std::exception
 	{
 	public:
@@ -68,6 +73,11 @@ namespace vtcore
 	{
 	public:
 		virtual const char* what() { return "[FATAL][Video] Can`t create window!"; }
+	};
+	class out_of_memory : public std::exception
+	{
+	public:
+		virtual const char* what() { return "[FATAL][Asset] Out of memory!"; }
 	};
 }
 #endif

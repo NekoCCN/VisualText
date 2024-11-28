@@ -30,7 +30,7 @@ SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color
 			vtcore::lst.logIn("Can not render text.", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
 			vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_RENDER);
 		}
-			return surface;
+		return surface;
 	}
 	else
 	{

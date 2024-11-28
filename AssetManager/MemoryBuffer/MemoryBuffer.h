@@ -10,7 +10,7 @@ namespace vtasset
 	{
 	private:
 		char* buffer_ = nullptr;
-		uint64_t byte_size_;
+		uint64_t byte_size_ = 0;
 	public:
 		friend class AssetPack;
 		MemoryBuffer() = default;
@@ -33,7 +33,6 @@ namespace vtasset
 		}
 		~MemoryBuffer()
 		{
-			std::cout << "MemoryBuffer Destroyed" << std::hex << (int)buffer_ << std::endl;
 			if (buffer_ != nullptr)
 				delete[] buffer_;
 		}

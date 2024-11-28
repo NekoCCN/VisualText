@@ -41,7 +41,7 @@ vtasset::AssetPack::AssetPack(const std::string& path)
 	fs_.read((char*)initialize_loading_resource_index_, sizeof(uint64_t) * init_resource_num_);
 
 	char* tmp;
-	for (int i = 0; i < init_resource_num_; i++)
+	for (uint32_t i = 0; i < init_resource_num_; i++)
 	{
 		if (toc_[initialize_loading_resource_index_[i]].is_permanent == true)
 		{
@@ -71,6 +71,7 @@ bool vtasset::AssetPack::goProgramIndex(uint32_t index)
 	if (index >= program_index_num_ - 1 || index < 0)
 		return false;
     program_index_pointer_ = program_index_list_ + index;
+	return true;
 }
 bool vtasset::AssetPack::getMemoryBuffer(uint32_t index, MemoryBuffer& MBuffer)
 {

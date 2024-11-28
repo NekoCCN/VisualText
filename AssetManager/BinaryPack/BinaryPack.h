@@ -14,7 +14,7 @@ namespace vtasset
 	class BinaryPack
 	{
 	private:
-		uint32_t file_num_;
+		uint32_t file_num_ = 0;
 		uint64_t* toc_ = nullptr;
 		static const uint32_t label_offset = 22;
 		uint64_t resource_offset_ = 0;

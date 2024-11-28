@@ -119,6 +119,7 @@ bool vtasset::BinaryPack::open(std::string path)
 	toc_ = new uint64_t[file_num_ + 1];
 	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
+	return true;
 }
 bool vtasset::BinaryPack::open(std::ifstream& fs)
 {
@@ -146,4 +147,5 @@ bool vtasset::BinaryPack::open(std::ifstream& fs)
 	toc_ = new uint64_t[file_num_ + 1];
 	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
+	return true;
 }

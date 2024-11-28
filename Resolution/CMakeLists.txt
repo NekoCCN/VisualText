@@ -1,7 +1,8 @@
 
 set(SemanticResolution_SRC
   "SemanticTable/SemanticTable.h"
-   "SemanticResolution.h" "SemanticResolution.cc")
+  "MDResolution/MDResolution.h" 
+  "MDResolution/MDResolution.cc" "CommandProcess/CommandProcess.h" "CommandProcess/CommandProcess.cc")
 
 add_library(VisualTextSemanticResolution STATIC ${SemanticResolution_SRC})
 
@@ -10,6 +11,7 @@ set(SemanticResolution_Require
   SDL3-static
   VisualTextCore
   VisualTextAsset
+  VisualTextTexture
 )
 
 target_link_libraries(VisualTextSemanticResolution PUBLIC ${SemanticResolution_Require})

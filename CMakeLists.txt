@@ -17,7 +17,7 @@ add_subdirectory ("VisualText")
 add_subdirectory ("Core")
 add_subdirectory ("AssetManager")
 add_subdirectory ("Texture")
-add_subdirectory ("SemanticResolution")
+add_subdirectory ("Resolution")
 
 # SDL
 set (BUILD_SHARED_LIBS false)

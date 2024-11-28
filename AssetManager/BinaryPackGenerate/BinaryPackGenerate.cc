@@ -8,26 +8,26 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 	SDL_Storage* storage = SDL_OpenFileStorage(src.c_str());
 	if (storage == nullptr)
 	{
-		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	if (!(SDL_StorageReady(storage)))
 	{
-		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	if (SDL_GetPathInfo(dst.c_str(), nullptr))
 	{
-		lst.logIn("The target file already exists", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("The target file already exists", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	std::ofstream fs;
 	fs.open(dst, std::ios_base::binary | std::ios_base::app | std::ios_base::out);
 	if (!(fs.is_open()))
 	{
-		lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 
@@ -70,6 +70,7 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 	fs.write((char*)toc_, (file_num_ + 1) * sizeof(uint64_t));
 
 	uint64_t size;  // File Part3 : Resources
+	bool flag = false;
 	char* buffer{};
 	const uint64_t max_buffer_size = 209715200ll;
 	const uint64_t error_buffer_size = 52428800ll;
@@ -87,17 +88,19 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 				}
 				catch (std::bad_alloc)
 				{
-					lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					flag = true;
+					vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 					try
 					{
 						buffer = new char[error_buffer_size];
 					}
 					catch (std::bad_alloc)
 					{
-						lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+						vtcore::lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+						throw out_of_memory();
 					}
 					uint32_t cycle = size / error_buffer_size;
-					lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 					for (int i = 0; i < cycle; ++i)
 					{
 						SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
@@ -108,17 +111,21 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 					fs.write(buffer, size);
 					delete[] buffer;
 				}
-				uint32_t cycle = size / max_buffer_size;
-				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-				for (int i = 0; i < cycle; ++i)
+				if (flag == false)
 				{
-					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, max_buffer_size);
-					fs.write(buffer, max_buffer_size);
+					uint32_t cycle = size / max_buffer_size;
+					vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					for (int i = 0; i < cycle; ++i)
+					{
+						SDL_ReadStorageFile(storage, file_name.c_str(), buffer, max_buffer_size);
+						fs.write(buffer, max_buffer_size);
+					}
+					size %= max_buffer_size;
+					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+					fs.write(buffer, size);
+					delete[] buffer;
 				}
-				size %= max_buffer_size;
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
-				fs.write(buffer, size);
-				delete[] buffer;
+				else flag = false;
 			}
 			else
 			{
@@ -128,17 +135,19 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 				}
 				catch (std::bad_alloc)
 				{
-					lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					flag = true;
+					vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 					try
 					{
 						buffer = new char[error_buffer_size];
 					}
 					catch (std::bad_alloc)
 					{
-						lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+						vtcore::lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+						throw out_of_memory();
 					}
 					uint32_t cycle = size / error_buffer_size;
-					lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 					for (int i = 0; i < cycle; ++i)
 					{
 						SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
@@ -149,10 +158,14 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 					fs.write(buffer, size);
 					delete[] buffer;
 				}
-				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
-				fs.write(buffer, size);
-				delete[] buffer;
+				if (flag == false)
+				{
+					vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+					fs.write(buffer, size);
+					delete[] buffer;
+				}
+				else flag = false;
 			}
 		}
 	}
@@ -169,26 +182,26 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 	SDL_Storage* storage = SDL_OpenFileStorage(src.c_str());
 	if (storage == nullptr)
 	{
-		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	if (!(SDL_StorageReady(storage)))
 	{
-		lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-		lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not open path, did it exist?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn(SDL_GetError(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	if (SDL_GetPathInfo(dst.c_str(), nullptr))
 	{
-		lst.logIn("The target file already exists", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("The target file already exists", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 	std::ofstream fs;
 	fs.open(dst, std::ios_base::binary | std::ios_base::app | std::ios_base::out);
 	if (!(fs.is_open()))
 	{
-		lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		vtcore::lst.logIn("Can not create binary pack. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
 
@@ -202,7 +215,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 		{
 			std::ostringstream ost;
 			ost << file_name << " in the list does not exist";
-			lst.logIn(ost.str(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+			vtcore::lst.logIn(ost.str(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 			return false;
 		}
 	}
@@ -229,6 +242,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 
 	uint64_t size;  // File Part3 : Resources
 	char* buffer{};
+	bool flag = false;
 	const uint64_t max_buffer_size = 209715200ll;
 	const uint64_t error_buffer_size = 52428800ll;
 	for (const auto& file_name : list_)  // This is a nesting hell. Sooner or later it will have to be rewritten using lambda expression.
@@ -242,47 +256,54 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 			}
 			catch (std::bad_alloc)
 			{
-				lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-					try
-					{
-						buffer = new char[error_buffer_size];
-					}
-					catch (std::bad_alloc)
-					{
-						lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
-					}
-					uint32_t cycle = size / error_buffer_size;
-					lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-					for (int i = 0; i < cycle; ++i)
-					{
-						SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
-						fs.write(buffer, error_buffer_size);
-					}
-					size %= max_buffer_size;
-					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
-					fs.write(buffer, size);
-					delete[] buffer;
+                flag = true;
+				vtcore::lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+				try
+				{
+					buffer = new char[error_buffer_size];
+				}
+				catch (std::bad_alloc)
+				{
+					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					throw out_of_memory();
+				}
+				uint32_t cycle = size / error_buffer_size;
+				vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				for (int i = 0; i < cycle; ++i)
+				{
+					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
+					fs.write(buffer, error_buffer_size);
+				}
+				size %= max_buffer_size;
+				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				fs.write(buffer, size);
+				delete[] buffer;
 			}
-			uint32_t cycle = size / max_buffer_size;
-			lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-			for (int i = 0; i < cycle; ++i)
+			if (flag == false)
 			{
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, max_buffer_size);
-				fs.write(buffer, max_buffer_size);
+				uint32_t cycle = size / max_buffer_size;
+				vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				for (int i = 0; i < cycle; ++i)
+				{
+					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, max_buffer_size);
+					fs.write(buffer, max_buffer_size);
+				}
+				size %= max_buffer_size;
+				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				fs.write(buffer, size);
+				delete[] buffer;
 			}
-			size %= max_buffer_size;
-			SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
-			fs.write(buffer, size);
-			delete[] buffer;
+			else flag = false;
 			}
-			else
-			{
+		else
+		{
 			try
 			{
 				buffer = new char[size];
 			}
 			catch (std::bad_alloc)
 			{
+				flag = true;
 				lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 				try
 				{
@@ -291,6 +312,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 				catch (std::bad_alloc)
 				{
 					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+					throw out_of_memory();
 				}
 				uint32_t cycle = size / error_buffer_size;
 				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
@@ -304,11 +326,14 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
-
-			lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-			SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
-			fs.write(buffer, size);
-			delete[] buffer;
+			if (flag == false)
+			{
+				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				fs.write(buffer, size);
+				delete[] buffer;
+			}
+			else flag = false;
 		}
 	}
 	fs.close();

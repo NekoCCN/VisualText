@@ -28,8 +28,12 @@ namespace vtcore
 			create_character,
 			set_character_state,
 			set_character_animation,
+			define_command,
 
 			go_to_file,
+
+			only_asset,
+			error_null,
 		};
 	}
 };
