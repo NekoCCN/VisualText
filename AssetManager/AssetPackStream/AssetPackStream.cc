@@ -42,7 +42,7 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 		is_ready = false;
 	}
 
-	resources_offset_ = sizeof(uint64_t) * 3 + 3 * sizeof(uint32_t) + label_.size() + 1;
+	resources_offset_ = sizeof(uint64_t) * 3 + 2 * sizeof(uint32_t) + label_.size() + 1;
 
 	fs_.write(label_.c_str(), label_.size() + 1);
 	fs_.write((char*)&resources_offset_, sizeof(uint64_t));  // resources offset
@@ -52,7 +52,6 @@ vtasset::AssetPackStream::AssetPackStream(std::string path, std::string dst)
 	fs_.write((char*)&tmp1, sizeof(uint64_t));  // Program_Index num
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Node num
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 }
 vtasset::AssetPackStream::~AssetPackStream()
 {
@@ -75,15 +74,12 @@ vtasset::AssetPackStream::~AssetPackStream()
 
 	tmp2 = toc_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
-	tmp2 = initialize_loading_resource_index_.size();
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 
 	fs_.seekp(0, std::ios_base::end);
 	
 	fs_.write((char*)program_index_list_.data(), sizeof(ProgramIndex) * program_index_list_.size()); // Write program index
-	fs_.write((char*)node_list_.data(), sizeof(uint64_t) * initialize_loading_resource_index_.size());  // Write Node list
+	fs_.write((char*)node_list_.data(), sizeof(uint64_t) * node_list_.size());  // Write Node list
 	fs_.write((char*)toc_.data(), sizeof(AssetStruct) * toc_.size());  // Write Toc
-	fs_.write((char*)initialize_loading_resource_index_.data(), sizeof(uint64_t) * initialize_loading_resource_index_.size());  // Write initialize loading resource`s index
 
 	fs_.close();
 }
@@ -108,15 +104,12 @@ bool vtasset::AssetPackStream::endPackFile()
 
 	tmp2 = toc_.size();
 	fs_.write((char*)&tmp2, sizeof(uint32_t));  // TOC num
-	tmp2 = initialize_loading_resource_index_.size();
-	fs_.write((char*)&tmp2, sizeof(uint32_t));  // Init_resource num
 
 	fs_.seekp(0, std::ios_base::end);
 
 	fs_.write((char*)program_index_list_.data(), sizeof(ProgramIndex) * program_index_list_.size()); // Write program index
-	fs_.write((char*)node_list_.data(), sizeof(uint64_t) * initialize_loading_resource_index_.size());  // Write Node list
+	fs_.write((char*)node_list_.data(), sizeof(uint64_t) * node_list_.size());  // Write Node list
 	fs_.write((char*)toc_.data(), sizeof(AssetStruct) * toc_.size());  // Write Toc
-	fs_.write((char*)initialize_loading_resource_index_.data(), sizeof(uint64_t) * initialize_loading_resource_index_.size());  // Write initialize loading resource`s index
 
 	fs_.close();
 	return true;
@@ -125,25 +118,24 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 {
 	if (is_ready == false)
 		return *this;
+
 	using namespace vtcore;
 
 	ProgramIndex PI;
+	PI.asset_list_index_size = PIPS.asset_list_index_size;
 
-	if (PIPS.reuse_asset == false)
+	for (int i = 0; i < PIPS.asset_list_index_size; ++i)
 	{
-		AssetStruct* ASList = new AssetStruct[PIPS.asset_list_index_size];
-		for (int i = 0; i < PIPS.asset_list_index_size; ++i)
+		if (PIPS.asset_format_list[i] == assetformat::ASSET_FORMAT_FILE)
 		{
-			ASList[i].index = toc_.size();
-			ASList[i].is_permanent = PIPS.is_permanent;
-			ASList[i].asset_format = PIPS.asset_format_list[i];
-			if (ASList[i].is_permanent == true)
+			if (reuse_asset_map_.find(PIPS.asset_filename_list[i]) != reuse_asset_map_.end())
 			{
-				ASList[i].permanent_buffer_index = initialize_loading_resource_index_.size();
-				initialize_loading_resource_index_.push_back(ASList[i].index);
+				PI.asset_list_index[i] = reuse_asset_map_.at(PIPS.asset_filename_list[i]);
+				lst.logIn(std::string("Reuse file ") + std::to_string(reuse_asset_map_.at(PIPS.asset_filename_list[i])), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 			}
-			if (ASList[i].asset_format == assetformat::ASSET_FORMAT_FILE)
+			else
 			{
+				AssetStruct AS;
 				if (!SDL_GetStoragePathInfo(storage_, PIPS.asset_filename_list[i].c_str(), nullptr))
 				{
 					std::ostringstream ost;
@@ -154,16 +146,16 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 
 				if (toc_.size() == 0)
 				{
-					ASList[i].toc_offset = 0;
+					AS.toc_offset = 0;
 					SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &tmp_offset_);
 				}
 				else
 				{
-					ASList[i].toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
+					AS.toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
 					SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &tmp_offset_);
 				}
 
-				toc_.push_back(ASList[i]);
+				toc_.push_back(AS);
 
 				// Start write resource
 				uint64_t size;
@@ -206,7 +198,7 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 					if (flag == false)
 					{
 						uint32_t cycle = size / max_buffer_size;
-						lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+						lst.logIn(std::string("Include file ") + PIPS.asset_filename_list[i], logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_APPLICATION);
 						for (int i = 0; i < cycle; ++i)
 						{
 							SDL_ReadStorageFile(storage_, PIPS.asset_filename_list[i].c_str(), buffer, max_buffer_size);
@@ -259,47 +251,40 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 					}
 					else flag = false;
 				}
+				reuse_asset_map_.insert(std::pair<std::string, uint32_t>(PIPS.asset_filename_list[i], toc_.size() - 1));
 			}
-			if (ASList[i].asset_format == assetformat::ASSET_FORMAT_STRING)
+			if (PIPS.asset_format_list[i] == assetformat::ASSET_FORMAT_STRING)
 			{
+				AssetStruct AS;
 				if (toc_.size() == 0)
 				{
-					ASList[i].toc_offset = 0;
+					AS.toc_offset = 0;
 					tmp_offset_ = PIPS.string.size() + 1;
 				}
 				else
 				{
-					ASList[i].toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
+					AS.toc_offset = toc_[toc_.size() - 1].toc_offset + tmp_offset_;
 					tmp_offset_ = PIPS.string.size() + 1;
 				}
-				toc_.push_back(ASList[i]);
-				ASList[i].is_permanent = false;
+				toc_.push_back(AS);
 				lst.logIn(std::string("Include string ") + PIPS.string.substr(0, 10), logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_APPLICATION);
 				fs_.write(PIPS.string.c_str(), PIPS.string.size() + 1);
 			}
-		}
-		for (int i = 0; i < PIPS.asset_list_index_size; ++i)
-		{
-			PI.asset_list_index[i] = ASList[i].index;
+			
+			PI.asset_list_index[i] = toc_.size() - 1;
 		}
 	}
 
-	if (PIPS.reuse_asset == true)
-	{
-		memcpy(PI.asset_list_index, PIPS.reuse_asset_index, 10 * sizeof(uint32_t));
-	}
-	PI.asset_list_index_size = PIPS.asset_list_index_size;
 	PI.command = PIPS.command;
 	for (int i = 0; i < 3; ++i)
 		PI.command_argument[i] = PIPS.command_argument[i];
-	PI.is_init_load = PIPS.is_init_load;
 	PI.is_node = PIPS.is_node;
 	PI.is_node_hide = PIPS.is_node_hide;
-	PI.is_permanent = PIPS.is_permanent;
 	memcpy(PI.node_name, PIPS.node_name, 32);
 	program_index_list_.push_back(PI);
 
 	if (PI.is_node == true)
 		node_list_.push_back(program_index_list_.size() - 1);
+
 	return *this;
 }

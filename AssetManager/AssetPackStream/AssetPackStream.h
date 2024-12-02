@@ -6,6 +6,7 @@
 #include <Core/CommandList/CommandList.h>
 #include "../AssetFormat/AssetFormat.h"
 #include <SDL3/SDL_storage.h>
+#include <map>
 #include <vector>
 #include <cstdint>
 #include <cstring>
@@ -18,18 +19,10 @@ namespace vtasset
 		assetformat::AssetFormat asset_format = assetformat::ASSET_FORMAT_FILE;
 		uint32_t index = 0;  
 		uint64_t toc_offset = 0;
-		bool is_permanent = false;
-		uint32_t permanent_buffer_index = 0;
 	};
 	struct ProgramIndexPushStruct  // Program Command List, Change with caution
 	{
 		vtcore::command::CommandList command = vtcore::command::error_null;
-
-		bool reuse_asset = false;
-		uint32_t reuse_asset_index[10]{};
-
-		bool is_permanent = false;
-		bool is_init_load = false;
 
 		bool is_node = false;
 		bool is_node_hide = false;
@@ -38,6 +31,7 @@ namespace vtasset
 		uint32_t command_argument[3]{};
 
 		assetformat::AssetFormat asset_format_list[10]{};
+
 		std::string asset_filename_list[10]{};  // File Mode
 		uint16_t asset_list_index_size = 0;
 
@@ -45,9 +39,6 @@ namespace vtasset
 	};
 	struct ProgramIndex
 	{
-		bool is_permanent = false;
-		bool is_init_load = false;
-
 		bool is_node = false;
 		bool is_node_hide = false;
 		char node_name[32]{};
@@ -63,7 +54,6 @@ namespace vtasset
 		std::vector<ProgramIndex> program_index_list_;
 		std::vector<uint64_t> node_list_;
 		std::vector<AssetStruct> toc_;  // long offset = 4GB, long long offset = 17179869184GB = 16777216TB
-		std::vector<uint64_t> initialize_loading_resource_index_;
 		uint64_t index_offset_;
 		uint64_t resources_offset_;
 		uint64_t tmp_offset_;
@@ -76,6 +66,8 @@ namespace vtasset
 		std::vector<std::string> img_suffix_list_;
 		std::vector<std::string> audio_suffix_list_;
 		std::vector<std::string> font_suffix_list_;
+
+		std::map<std::string, uint32_t> reuse_asset_map_;
 	public:
 		AssetPackStream(std::string path, std::string dst);
 		AssetPackStream& operator<<(const ProgramIndexPushStruct PIPS);

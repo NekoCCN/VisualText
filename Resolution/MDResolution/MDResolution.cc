@@ -37,30 +37,41 @@ vtresolution::MDResolutionApplication::MDResolutionApplication(const std::string
 	fs_.open(dst_path, std::ios_base::in);
 	if (!(fs_.is_open()))
 	{
-		lst.logIn("Can not open md file. Path is exist? Have promission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
+		lst.logIn("Can not open md file. Path is exist? Have permission?", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		is_ready = false;
 	}
 }
-bool vtresolution::MDResolutionApplication::resolutionDefine()
+uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 {
 	std::string string_buffer;
+
+	uint64_t line = 0;
 
 	uint64_t num_tmp;
 	vtcore::command::CommandList command;
 	size_t l_tmp, r_tmp;
 
-	uint64_t offset_tmp = 0;
-	offset_tmp = fs_.tellg();
-
 	fs_.seekg(0, std::ios::beg);
 
-	std::getline(fs_, string_buffer);
+	auto nextLineForDefineResolution = [&]() -> void
+		{
+			string_buffer.clear();
+			std::getline(fs_, string_buffer);
+			++line;
+		};
+
+	auto errorReset = [&](std::string addition_string = "") -> void
+		{
+			vtcore::lst.logIn(std::string("Line") + std::to_string(line) + " :" + "Invalid define syntax : " + addition_string,
+				vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
+			fs_.clear();
+		};
+
+	nextLineForDefineResolution();
 	
 	if (fs_.fail())
 	{
-		vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-		fs_.clear();
-		fs_.seekg(offset_tmp, std::ios::beg);
+		errorReset(R"(Unable recognize "---")");
 		return false;
 	}
 
@@ -69,6 +80,7 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 		for (auto& x : string_buffer)
 		{
 			if (x != '-' || x != '\n')
+				errorReset();
 				return false;
 		}
 	}
@@ -82,9 +94,7 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 
 		if ((command = ST.searchString(split_string_buffer[0])) == -1)
 		{
-			vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-			fs_.clear();
-			fs_.seekg(offset_tmp, std::ios::beg);
+			errorReset("Syntax Error");
 			return false;
 		}
 
@@ -94,16 +104,12 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 		{
 			if (split_string_buffer.size() > 3 || split_string_buffer.size() < 2)
 			{
-				vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-				fs_.clear();
-				fs_.seekg(offset_tmp, std::ios::beg);
+				errorReset("Syntax Error");
 				return false;
 			}
 			if (split_string_buffer[1][0] != '!')
 			{
-				vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-				fs_.seekg(offset_tmp, std::ios::beg);
-				fs_.clear();
+				errorReset("Error declare of asset(image)");
 				return false;
 			}
 
@@ -117,9 +123,7 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 				}
 				catch (std::exception& e)
 				{
-					vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-					fs_.seekg(offset_tmp, std::ios::beg);
-					fs_.clear();
+					errorReset("Error to find asset(image), Did path right?");
 					return false;
 				}
 			}
@@ -132,16 +136,12 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 				}
 				catch (const std::exception& e)
 				{
-					vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-					fs_.clear();
-					fs_.seekg(offset_tmp, std::ios::beg);
+					errorReset("Error to find asset(image), Did path right?");
 					return false;
 				}
 				if (speed <= 0)
 				{
-					vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-					fs_.clear();
-					fs_.seekg(offset_tmp, std::ios::beg);
+					errorReset("Speed Error(The Three Argument Error(<0))");
 					return false;
 				}
 				try
@@ -150,9 +150,7 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 				}
 				catch (std::exception& e)
 				{
-					vtcore::lst.logIn("Invalid character define syntax", vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
-					fs_.seekg(offset_tmp, std::ios::beg);
-					fs_.clear();
+					errorReset("Error to find asset(image), Did path right?");
 					return false;
 				}
 			}
@@ -164,21 +162,21 @@ bool vtresolution::MDResolutionApplication::resolutionDefine()
 	}
 
 	fs_.clear();
-	fs_.seekg(offset_tmp, std::ios::beg);
 
 	if (string_buffer[0] == '-')
 	{
 		for (auto& x : string_buffer)
 		{
-			if (x == '-')
-				return true;
+			if (x != '-' || x != '\n')
+				errorReset("Error end statement(---), But still continue");
 		}
 	}
+
+	return true;
 }
 vtasset::ProgramIndexPushStruct vtresolution::MDResolutionApplication::resolutionStringToPI(const std::string& str)
 {
 	std::stringstream ss;
-	reverse(str.begin(), str.end());
 	ss << str;
 
 	std::string string_buffer;
@@ -194,7 +192,78 @@ vtasset::ProgramIndexPushStruct vtresolution::MDResolutionApplication::resolutio
 		ss << string_buffer;
 		if (ss.fail())
 			throw vtcore::syntax_error_error();
-		PIPS.command = vtcore::command::to_main_textbox;
-		
+		PIPS = CSF_.get_to_main_textbox_PIPS(string_buffer);
+		return PIPS;
+
+	case vtcore::command::draw_character:
+		ss << string_buffer;
+		if (ss.fail())
+			throw vtcore::syntax_error_error();
+		PIPS = CSF_.get_draw_character_PIPS(string_buffer);
+		return PIPS;
+
 	}
+}
+std::vector<vtasset::ProgramIndexPushStruct> vtresolution::MDResolutionApplication::resolutionCommandStatement(std::string str)
+{
+	std::vector<int> left_index;
+    std::vector<int> right_index;
+	std::vector<vtasset::ProgramIndexPushStruct> result;
+	for (int i = 0; i < str.size(); ++i)
+	{
+		if (str[i] == '{')
+            left_index.push_back(i);
+        if (str[i] == '}')
+            right_index.push_back(i);
+	}
+	if (left_index.size() != right_index.size())
+	{
+		vtcore::lst.logIn("Line" + std::to_string(line_) + " : " + "Error syntax(Bracket) : " + str, vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
+		return result;
+	}
+
+	for (int i = 0; i < left_index.size(); ++i)
+	{
+        std::string tmp_str;
+        tmp_str = str.substr(left_index[i] + 1, right_index[i] - left_index[i] - 1);
+		vtasset::ProgramIndexPushStruct PIPS = resolutionStringToPI(tmp_str);
+		result.push_back(PIPS);
+	}
+	return result;
+}
+bool vtresolution::MDResolutionApplication::entryPoint()
+{
+	std::string string_buffer;
+	vtasset::ProgramIndexPushStruct PIPS;
+
+	if (!fs_.good())
+		return false;
+	
+	resolutionDefine();
+
+	do
+	{
+		std::getline(fs_, string_buffer);
+
+		if (string_buffer[0] == '[')
+		{
+			resolutionNormalStatement(string_buffer);
+		}
+		else
+		{
+			std::vector<vtasset::ProgramIndexPushStruct> commandList = resolutionCommandStatement(string_buffer);
+			try
+			{
+				for (auto& x : commandList)
+					APS_ << x;
+			}
+			catch (std::exception& e)
+			{
+                vtcore::lst.logIn("Line" + std::to_string(line_) + " : " + "Error asset : " + e.what(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_APPLICATION);
+				return false;
+			}
+		}
+	} while (fs_.good());
+
+	return true;
 }

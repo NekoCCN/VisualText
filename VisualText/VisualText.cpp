@@ -34,16 +34,16 @@ int main()
     vtcore::lst.setAllPriority(vtcore::logsys::LOG_PRIORITY_INVALID);
     vtasset::ThemeTemplateGenerator TTG;
 
-   // vtasset::AssetPackStream stream(R"(E:\TestFile)", R"(E:\VtAsset.vtap)");
-   // vtasset::ProgramIndexPushStruct PIPS1;
-   // PIPS1.asset_filename_list[0] = "FONT1.ttf";
-   // PIPS1.asset_filename_list[1] = "FONT2.ttf";
-   // PIPS1.asset_list_index_size = 2;
-   // PIPS1.is_node = true;
-   // PIPS1.is_node_hide = true;
-   // PIPS1.is_permanent = false;
-   // stream << PIPS1;
-   // stream.endPackFile();
+    vtasset::AssetPackStream stream(R"(E:\TestFile)", R"(E:\VtAsset.vtap)");
+    vtasset::ProgramIndexPushStruct PIPS1;
+    PIPS1.asset_filename_list[0] = "FONT1.ttf";
+    PIPS1.asset_filename_list[1] = "FONT2.ttf";
+    PIPS1.asset_list_index_size = 2;
+    PIPS1.is_node = true;
+    PIPS1.is_node_hide = true;
+    stream << PIPS1;
+    stream << PIPS1;
+    stream.endPackFile();
 
     vtasset::AssetPack AP(R"(E:\VtAsset.vtap)");
 

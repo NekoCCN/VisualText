@@ -26,30 +26,16 @@ vtasset::AssetPack::AssetPack(const std::string& path)
 	fs_.read((char*)&program_index_num_, sizeof(uint64_t));  // Program_Index num
 	fs_.read((char*)&node_num_, sizeof(uint32_t));  // Node num
 	fs_.read((char*)&toc_num_, sizeof(uint32_t));  // TOC num
-	fs_.read((char*)&init_resource_num_, sizeof(uint32_t));  // Init_resource num
 
 	fs_.seekg(index_offset_, std::ios_base::beg);
 
 	program_index_list_ = new ProgramIndex[program_index_num_];
 	node_list_ = new uint64_t[node_num_];
 	toc_ = new AssetStruct[toc_num_];
-	initialize_loading_resource_index_ = new uint64_t[init_resource_num_];
 
 	fs_.read((char*)program_index_list_, sizeof(ProgramIndex) * program_index_num_);
 	fs_.read((char*)node_list_, sizeof(uint64_t) * node_num_);
 	fs_.read((char*)toc_, sizeof(AssetStruct) * toc_num_);
-	fs_.read((char*)initialize_loading_resource_index_, sizeof(uint64_t) * init_resource_num_);
-
-	char* tmp;
-	for (uint32_t i = 0; i < init_resource_num_; i++)
-	{
-		if (toc_[initialize_loading_resource_index_[i]].is_permanent == true)
-		{
-			tmp = new char[getFileByte(i)];
-			fs_.read(tmp, getFileByte(i));
-			permanent_buffer_.push_back({ tmp, getFileByte(i) });
-		}
-	}
 
 	program_index_pointer_ = program_index_list_;
 }

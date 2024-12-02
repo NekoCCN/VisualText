@@ -12,6 +12,8 @@
 #include <Core/LogSystem/LogSystem.h>
 #include <AssetManager/AssetPackStream/AssetPackStream.h>
 #include <AssetManager/AssetPack/AssetPack.h>
+#include <thread>
+#include <future>
 #include "../CommandProcess/CommandProcess.h"
 #include "../SemanticTable/SemanticTable.h"
 
@@ -29,7 +31,8 @@ namespace vtresolution
 		std::vector<DefinePair> command_define_list_;
 		std::vector<DefinePair> character_define_list_;
 		SemanticTable ST;
-		uint64_t line = 0;
+
+		uint64_t line_ = 0;
 
 		std::vector<std::string> split_string_buffer;
 		void split_string(const std::string& str);
@@ -37,11 +40,19 @@ namespace vtresolution
 
 		typedef std::pair<std::string, uint32_t> filename_to_toc_index_;
 
-		
+		void nextLine(std::string& str)
+		{
+			str.clear();
+			std::getline(fs_, str);
+			++line_;
+		}
 	public:
 		MDResolutionApplication(const std::string& md_file_path, const std::string& asset_path, const std::string& dst_path);
-		bool resolutionDefine();
+		uint64_t resolutionDefine();
+		bool resolutionNormalStatement(std::string);
+		std::vector<vtasset::ProgramIndexPushStruct> resolutionCommandStatement(std::string str);
 		vtasset::ProgramIndexPushStruct resolutionStringToPI(const std::string& str);  // throw a exception
+		bool entryPoint();
 	};
 }
 
