@@ -12,7 +12,7 @@ set(Asset_SRC
   "AssetPack/AssetPack.h" 
   "AssetPack/AssetPack.cc"
   "AssetFormat/AssetFormat.h"
-  "MemoryBuffer/MemoryBuffer.h")
+  "MemoryBuffer/MemoryBuffer.h" "EntryPoint.h" "EntryPoint.cc")
 
 add_library(VisualTextAsset STATIC ${Asset_SRC})
 

@@ -3,13 +3,14 @@
 #define VISUALTEXT_ASSETMANAGER_MEMORYBUFFER_MEMORYBUFFER_H_
 
 #include <Core/LogSystem/LogSystem.h>
+#include <memory>
 
 namespace vtasset
 {
 	class MemoryBuffer
 	{
 	private:
-		char* buffer_ = nullptr;
+		std::shared_ptr<char> buffer_ = nullptr;
 		uint64_t byte_size_ = 0;
 	public:
 		friend class AssetPack;
@@ -22,7 +23,7 @@ namespace vtasset
 		MemoryBuffer(uint64_t byte_size) noexcept
 		{
 			byte_size_ = byte_size;
-			buffer_ = new char[byte_size_];
+			buffer_ = std::shared_ptr<char>(new char[byte_size_]);
 		}
 		MemoryBuffer(MemoryBuffer&& buffer) noexcept
 		{
@@ -32,22 +33,12 @@ namespace vtasset
 			buffer.byte_size_ = 0;
 		}
 		~MemoryBuffer()
-		{
-			if (buffer_ != nullptr)
-				delete[] buffer_;
-		}
+		{  }
 		uint64_t getBufferByte()
 		{
 			return byte_size_;
 		}
-		void refreshMemoryBuffer(char* buffer, uint64_t byte_size)
-		{
-			if (buffer_ != nullptr)
-				delete[] buffer_;
-			buffer_ = buffer;
-			byte_size_ = byte_size;
-		}
-		char* getBufferPoint()
+		std::shared_ptr<char> getBufferPoint()
 		{
 			return buffer_;
 		}
