@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6
+# Install script for directory: C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

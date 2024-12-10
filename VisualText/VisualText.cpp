@@ -33,26 +33,27 @@ int main()
     ProjectInitializer PINIT;
     vtcore::lst.setAllPriority(vtcore::logsys::LOG_PRIORITY_INVALID);
     vtasset::ThemeTemplateGenerator TTG;
+    vtrender::RenderFunction rf;
 
-    vtasset::AssetPackStream stream(R"(E:\TestFile)", R"(E:\VtAsset.vtap)");
-    vtasset::ProgramIndexPushStruct PIPS1;
-    PIPS1.asset_filename_list[0] = "FONT1.ttf";
-    PIPS1.asset_filename_list[1] = "FONT2.ttf";
-    PIPS1.asset_list_index_size = 2;
-    PIPS1.is_node = true;
-    PIPS1.is_node_hide = true;
-    stream << PIPS1;
-    stream << PIPS1;
-    stream.endPackFile();
+    //vtasset::AssetPackStream stream(R"(E:\TestFile)", R"(E:\VtAsset.vtap)");
+    //vtasset::ProgramIndexPushStruct PIPS1;
+    //PIPS1.asset_filename_list[0] = "FONT1.ttf";
+    //PIPS1.asset_filename_list[1] = "FONT2.ttf";
+    //PIPS1.asset_list_index_size = 2;
+    //PIPS1.is_node = true;
+    //PIPS1.is_node_hide = true;
+    //stream << PIPS1;
+    //stream << PIPS1;
+    //stream.endPackFile();
 
-    vtasset::AssetPack AP(R"(E:\VtAsset.vtap)");
+    //vtasset::AssetPack AP(R"(E:\VtAsset.vtap)");
 
-    vtasset::ProgramIndex PI;
-    AP >> PI;
-    ofstream ofs("E:/test.ttf", ios_base::binary);
-    vtasset::MemoryBuffer MB1;
-    AP.getMemoryBuffer(0, MB1);
-    ofs.write(MB1.getBufferPoint(), MB1.getBufferByte());
+    //vtasset::ProgramIndex PI;
+    //AP >> PI;
+    //ofstream ofs("E:/test.ttf", ios_base::binary);
+    //vtasset::MemoryBuffer MB1;
+    //AP.getMemoryBuffer(0, MB1);
+    //ofs.write(MB1.getBufferPoint().get(), MB1.getBufferByte());
 
     vtasset::BinaryPack bpack(R"(E:\VtAsset.vtbp)");
     vttexture::Font font1(bpack, 0, 32);
@@ -67,7 +68,7 @@ int main()
         cout << SDL_GetError() << endl;
     }
     bool quit = false;
-    vtcore::RatioRect rect(window, {0.5, 0.5, 0.1, 0.1});
+    vtcore::RatioRect rect(window, { 0.5, 0.5, 0.1, 0.1});
     SDL_FRect r = rect(texture->w, texture->h);
     SDL_Event e;
     while (!quit)
@@ -83,6 +84,7 @@ int main()
         SDL_RenderClear(window.getRendererHinding());
 
         SDL_RenderTexture(window.getRendererHinding(), texture, nullptr, &(r));
+        rf.renderMainTextBoxUsingGaussianBlur(window, 0);
 
         window.presentRender();
     }

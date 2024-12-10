@@ -78,9 +78,9 @@ void vtcore::transform::box_blur(SDL_Surface* src, SDL_Surface* dst, int radius,
         }
     }
 
-    delete[](buf);
-    delete[](sum_v);
-    delete[](sum_h);
+    delete[] buf;
+    delete[] sum_v;
+    delete[] sum_h;
 }
 
 void vtcore::transform::gaussian_blur(SDL_Surface* src, SDL_Surface* dst, int sigma, bool repeat)
@@ -160,7 +160,7 @@ void vtcore::transform::gaussian_blur(SDL_Surface* src, SDL_Surface* dst, int si
         }
     }
 
-    delete[](buf);
-    delete[](buf2);
-    delete[](lut);
+    delete[] buf;
+    delete[] buf2;
+    delete[] lut;
 }

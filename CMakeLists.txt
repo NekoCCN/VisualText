@@ -18,6 +18,7 @@ add_subdirectory ("Core")
 add_subdirectory ("AssetManager")
 add_subdirectory ("Texture")
 add_subdirectory ("Resolution")
+add_subdirectory ("Render")
 
 # SDL
 set (BUILD_SHARED_LIBS false)

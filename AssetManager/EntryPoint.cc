@@ -25,4 +25,5 @@ bool vtasset::AssetResolver::start()
 				return resolver_queue_.unsafe_size() < buffer_size_;
 			});
 	}
+	return true;
 }

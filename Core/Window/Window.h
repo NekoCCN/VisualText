@@ -85,6 +85,21 @@ namespace vtcore
 			SDL_GetWindowSize(window_, &(tmp_rect.w), &(tmp_rect.h));
 			return tmp_rect;
 		}
+		SDL_Surface* getWindowSurfaceCopy()
+		{
+			SDL_Surface* current_surface = SDL_GetWindowSurface(window_);
+			SDL_Surface* copy = SDL_CreateSurface(current_surface->w, current_surface->h, current_surface->format);
+			SDL_BlitSurface(current_surface, nullptr, copy, nullptr);
+			return copy;
+		}
+		SDL_Texture* surfaceToTexture(SDL_Surface* src)
+		{
+			return SDL_CreateTextureFromSurface(sdl_renderer_, src);
+		}
+		void renderTexture(SDL_Texture* src, SDL_FRect* src_rect = nullptr, SDL_FRect* dst_rect = nullptr)
+		{
+			SDL_RenderTexture(sdl_renderer_, src, src_rect, dst_rect);
+		}
 	private:
 		// Surface-based software rendering is no longer used by default.
 		// Software rendering cannot be used with hardware rendering

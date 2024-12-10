@@ -2,6 +2,9 @@
 #ifndef VISUALTEXT_VISUALTEXT_VISUALTEXT_H_
 #define VISUALTEXT_VISUALTEXT_VISUALTEXT_H_
 #include <iostream>
+#include <thread>
+#include <memory>
+#include <vector>
 #include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
@@ -11,6 +14,7 @@
 #include <Core/Exception/Exception.h>
 #include <AssetManager/BinaryPackGenerate/ThemeTemplateGenerate/ThemeTemplateGenerate.h>
 #include <AssetManager/BinaryPack/BinaryPack.h>
+#include <Render/RenderFunction/RenderFunction.h>
 #include <AssetManager/AssetPackStream/AssetPackStream.h>
 #include <AssetManager/AssetPack/AssetPack.h>
 #include <Core/Vector/RatioRect.h>
@@ -97,4 +101,11 @@ public:
 	}
 };
 
+class Application
+{
+private:
+	std::vector< std::shared_ptr<std::thread> > asset_threads;
+	std::vector< std::shared_ptr<std::thread> > audio_threads;
+public:
+};
 #endif

@@ -160,8 +160,8 @@ vtasset::AssetPackStream& vtasset::AssetPackStream::operator<<(const ProgramInde
 				// Start write resource
 				uint64_t size;
 				char* buffer{};
-				const uint64_t max_buffer_size = 209715200ll;
-				const uint64_t error_buffer_size = 52428800ll;
+				constexpr uint64_t max_buffer_size = 209715200ll;
+				constexpr uint64_t error_buffer_size = 52428800ll;
 				bool flag = false;
 				SDL_GetStorageFileSize(storage_, PIPS.asset_filename_list[i].c_str(), &size);
 				if (size >= max_buffer_size)

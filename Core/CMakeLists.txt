@@ -11,7 +11,7 @@ set(Core_SRC
   "Vector/RatioRect.h"
   "Monitor/Monitor.h"
   "Monitor/Monitor.cc"
-  "Vector/RatioPoint.h" "Vector/RatioPoint.cc" "Vector/RatioRect.cc" "Transform/Transform.h" "Transform/Transform.cc" "CommandList/CommandList.h")
+  "Vector/RatioPoint.h" "Vector/RatioPoint.cc" "Vector/RatioRect.cc" "Transform/Transform.h" "Transform/Transform.cc" "CommandList/CommandList.h" "PointFunction/PointFunction.h" "PointFunction/PointFunction.cc")
 
 add_library(VisualTextCore STATIC ${Core_SRC})
 

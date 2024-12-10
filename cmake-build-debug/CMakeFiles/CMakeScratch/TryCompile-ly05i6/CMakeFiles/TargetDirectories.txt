@@ -1,3 +1,0 @@
-C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/CMakeFiles/cmTC_2d6af.dir
-C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/CMakeFiles/edit_cache.dir
-C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/CMakeFiles/rebuild_cache.dir

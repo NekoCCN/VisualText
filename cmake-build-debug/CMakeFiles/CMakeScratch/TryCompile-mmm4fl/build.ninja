@@ -34,46 +34,47 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = C$:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/
+cmake_ninja_workdir = C$:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/
 # =============================================================================
-# Object build statements for EXECUTABLE target cmTC_2d6af
+# Object build statements for EXECUTABLE target cmTC_4ce80
 
 
 #############################################
-# Order-only phony target for cmTC_2d6af
+# Order-only phony target for cmTC_4ce80
 
-build cmake_object_order_depends_target_cmTC_2d6af: phony || .
+build cmake_object_order_depends_target_cmTC_4ce80: phony || .
 
-build CMakeFiles/cmTC_2d6af.dir/CheckSymbolExists.c.obj: C_COMPILER__cmTC_2d6af_unscanned_ C$:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6/CheckSymbolExists.c || cmake_object_order_depends_target_cmTC_2d6af
-  DEP_FILE = CMakeFiles\cmTC_2d6af.dir\CheckSymbolExists.c.obj.d
-  FLAGS = -D_GNU_SOURCE=1 -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles\cmTC_2d6af.dir
-  OBJECT_FILE_DIR = CMakeFiles\cmTC_2d6af.dir
+build CMakeFiles/cmTC_4ce80.dir/src.c.obj: C_COMPILER__cmTC_4ce80_unscanned_ C$:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/src.c || cmake_object_order_depends_target_cmTC_4ce80
+  DEFINES = -DHAVE_GCC_WUNDEF
+  DEP_FILE = CMakeFiles\cmTC_4ce80.dir\src.c.obj.d
+  FLAGS = -D_GNU_SOURCE=1 -fdiagnostics-color=always   -Wundef
+  OBJECT_DIR = CMakeFiles\cmTC_4ce80.dir
+  OBJECT_FILE_DIR = CMakeFiles\cmTC_4ce80.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target cmTC_2d6af
+# Link build statements for EXECUTABLE target cmTC_4ce80
 
 
 #############################################
-# Link the executable cmTC_2d6af.exe
+# Link the executable cmTC_4ce80.exe
 
-build cmTC_2d6af.exe: C_EXECUTABLE_LINKER__cmTC_2d6af_ CMakeFiles/cmTC_2d6af.dir/CheckSymbolExists.c.obj
+build cmTC_4ce80.exe: C_EXECUTABLE_LINKER__cmTC_4ce80_ CMakeFiles/cmTC_4ce80.dir/src.c.obj
   FLAGS = -D_GNU_SOURCE=1
-  LINK_LIBRARIES = -lm  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\cmTC_2d6af.dir
+  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\cmTC_4ce80.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = cmTC_2d6af.exe
-  TARGET_IMPLIB = libcmTC_2d6af.dll.a
-  TARGET_PDB = cmTC_2d6af.exe.dbg
+  TARGET_FILE = cmTC_4ce80.exe
+  TARGET_IMPLIB = libcmTC_4ce80.dll.a
+  TARGET_PDB = cmTC_4ce80.exe.dbg
 
 
 #############################################
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D C:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-ly05i6 && "D:\Program Files\JetBrains\CLion 2024.2.2\bin\cmake\win\x64\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D C:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-mmm4fl && "D:\Program Files\JetBrains\CLion 2024.2.2\bin\cmake\win\x64\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -84,7 +85,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D C:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-ly05i6 && "D:\Program Files\JetBrains\CLion 2024.2.2\bin\cmake\win\x64\bin\cmake.exe" --regenerate-during-build -SC:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-ly05i6 -BC:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-ly05i6"
+  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D C:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-mmm4fl && "D:\Program Files\JetBrains\CLion 2024.2.2\bin\cmake\win\x64\bin\cmake.exe" --regenerate-during-build -SC:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-mmm4fl -BC:\Users\unirz\source\repos\VisualText\cmake-build-debug\CMakeFiles\CMakeScratch\TryCompile-mmm4fl"
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -94,7 +95,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build cmTC_2d6af: phony cmTC_2d6af.exe
+build cmTC_4ce80: phony cmTC_4ce80.exe
 
 # =============================================================================
 # Folder targets.
@@ -102,9 +103,9 @@ build cmTC_2d6af: phony cmTC_2d6af.exe
 # =============================================================================
 
 #############################################
-# Folder: C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ly05i6
+# Folder: C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl
 
-build all: phony cmTC_2d6af.exe
+build all: phony cmTC_4ce80.exe
 
 # =============================================================================
 # Built-in targets

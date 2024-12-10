@@ -34,7 +34,7 @@ namespace vtresolution
 
 		uint64_t line_ = 0;
 
-		std::vector<std::string> split_string_buffer;
+		std::vector<std::string> split_string_buffer_;
 		void split_string(const std::string& str);
 		std::string getPathFromBracket(const std::string& str);
 

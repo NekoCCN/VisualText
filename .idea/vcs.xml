@@ -4,11 +4,12 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/External/SDL" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/External/SDL_image_pre/SDL_image" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/SDL" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/freetype" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/freetype/subprojects/dlg" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/External/Truetype_loader/SDL_ttf/external/harfbuzz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_ttf/SDL_ttf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_ttf/SDL_ttf/external/SDL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_ttf/SDL_ttf/external/freetype" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_ttf/SDL_ttf/external/freetype/subprojects/dlg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/SDL_ttf/SDL_ttf/external/harfbuzz" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/External/imgui_pre/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/External/soloud_pre/soloud" vcs="Git" />
   </component>
 </project>

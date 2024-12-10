@@ -15,7 +15,7 @@ namespace vtasset
 	public:
 		friend class AssetPack;
 		MemoryBuffer() = default;
-		MemoryBuffer(char* buffer, uint64_t byte_size) noexcept
+		MemoryBuffer(std::shared_ptr<char> buffer, uint64_t byte_size) noexcept
 		{
 			buffer_ = buffer;
 			byte_size_ = byte_size;

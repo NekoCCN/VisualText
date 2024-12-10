@@ -1,0 +1,3 @@
+C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/CMakeFiles/cmTC_4ce80.dir
+C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/CMakeFiles/edit_cache.dir
+C:/Users/unirz/source/repos/VisualText/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-mmm4fl/CMakeFiles/rebuild_cache.dir

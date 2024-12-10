@@ -2,7 +2,7 @@
 
 void vtresolution::MDResolutionApplication::split_string(const std::string& str)
 {
-	split_string_buffer.clear();
+	split_string_buffer_.clear();
 
 	std::stringstream ss;
 	std::string tmp;
@@ -92,7 +92,7 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 
 		split_string(string_buffer);
 
-		if ((command = ST.searchString(split_string_buffer[0])) == -1)
+		if ((command = ST.searchString(split_string_buffer_[0])) == -1)
 		{
 			errorReset("Syntax Error");
 			return false;

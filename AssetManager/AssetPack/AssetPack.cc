@@ -21,11 +21,11 @@ vtasset::AssetPack::AssetPack(const std::string& path)
 	}
 	is_ready_ = true;
 
-	fs_.read((char*)&resources_offset_, sizeof(uint64_t));  // resources offset
-	fs_.read((char*)&index_offset_, sizeof(uint64_t));  // index offset
-	fs_.read((char*)&program_index_num_, sizeof(uint64_t));  // Program_Index num
-	fs_.read((char*)&node_num_, sizeof(uint32_t));  // Node num
-	fs_.read((char*)&toc_num_, sizeof(uint32_t));  // TOC num
+	fs_.read(reinterpret_cast<char*>(&resources_offset_), sizeof(uint64_t));  // resources offset
+	fs_.read(reinterpret_cast<char*>(&index_offset_), sizeof(uint64_t));  // index offset
+	fs_.read(reinterpret_cast<char*>(&program_index_num_), sizeof(uint64_t));  // Program_Index num
+	fs_.read(reinterpret_cast<char*>(&node_num_), sizeof(uint32_t));  // Node num
+	fs_.read(reinterpret_cast<char*>(&toc_num_), sizeof(uint32_t));  // TOC num
 
 	fs_.seekg(index_offset_, std::ios_base::beg);
 
@@ -33,9 +33,9 @@ vtasset::AssetPack::AssetPack(const std::string& path)
 	node_list_ = new uint64_t[node_num_];
 	toc_ = new AssetStruct[toc_num_];
 
-	fs_.read((char*)program_index_list_, sizeof(ProgramIndex) * program_index_num_);
-	fs_.read((char*)node_list_, sizeof(uint64_t) * node_num_);
-	fs_.read((char*)toc_, sizeof(AssetStruct) * toc_num_);
+	fs_.read(reinterpret_cast<char*>(program_index_list_), sizeof(ProgramIndex) * program_index_num_);
+	fs_.read(reinterpret_cast<char*>(node_list_), sizeof(uint64_t) * node_num_);
+	fs_.read(reinterpret_cast<char*>(toc_), sizeof(AssetStruct) * toc_num_);
 
 	program_index_pointer_ = program_index_list_;
 }
@@ -65,9 +65,9 @@ bool vtasset::AssetPack::getMemoryBuffer(uint32_t index, MemoryBuffer& MBuffer)
 		return false;
 	if (MBuffer.isEmpty() != true)
 		return false;
-	char* tmp = new char[getFileByte(index)];
+	std::shared_ptr<char> tmp(new char[getFileByte(index)]);
 	fs_.seekg(resources_offset_, std::ios_base::beg);
-	fs_.read(tmp, getFileByte(index));
+	fs_.read(tmp.get(), getFileByte(index));
 
 	MBuffer.buffer_ = tmp;
 	MBuffer.byte_size_ = getFileByte(index);

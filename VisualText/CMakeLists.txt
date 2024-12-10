@@ -8,6 +8,7 @@ set (VisualTextRequire
   VisualTextCore
   VisualTextAsset
   VisualTextTexture
+  VisualTextRender
 )
 
 add_executable (VisualText "VisualText.cpp" "VisualText.h")

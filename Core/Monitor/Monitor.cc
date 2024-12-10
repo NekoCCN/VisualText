@@ -3,7 +3,7 @@
 SDL_Rect vtcore::MonitorLists::getDisplayBound(int32_t index)
 {
 	SDL_Rect tmp;
-	if (!(index <= monitor_num_ - 1 && index > 0))  //index from 0 to monitor num - 1
+	if (!(index <= monitor_num_ - 1 && index >= 0))  //index from 0 to monitor num - 1
 	{
 		lst.logIn("Invalid monitor index", logsys::LOG_PRIORITY_CRITICAL, logsys::LOG_CATEGORY_VIDEO);
 		throw monitor_index_error();

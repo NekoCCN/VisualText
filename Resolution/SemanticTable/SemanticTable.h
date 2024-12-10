@@ -43,7 +43,6 @@ namespace vtresolution
             {"create_character", vtcore::command::create_character},
             {"set_character_state", vtcore::command::set_character_state},
             {"set_character_animation", vtcore::command::set_character_animation},
-W
             {"to_main_textbox", vtcore::command::to_main_textbox},
             {"put_string", vtcore::command::put_string},
             {"define_command", vtcore::command::define_command},
