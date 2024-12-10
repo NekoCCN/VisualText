@@ -15,15 +15,15 @@ namespace vtasset
 	class BinaryPackGenApplication
 	{
 	private:
-		uint64_t* toc_ = 0;  // long offset = 4GB, long long offset = 17179869184GB = 16777216TB
+		uint64_t* toc_ = nullptr;  // long offset = 4GB, long long offset = 17179869184GB = 16777216TB
 		uint32_t file_num_ = 0;
 		std::vector<std::string> list_;
 		std::string label_ = "VisualTextBinaryPack;";
 		bool is_suffix_mode_ = false;
 	public:
-		enum BigfileMode { BigFileON = 1, BigFileOFF = 0 };  // reserve for future
-		enum SuffixMode { SuffixModeOn = 1, SuffixModeOff = 0 };
-		bool operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd = SuffixModeOff);
+		enum BigfileMode:uint8_t { BigFileON = 1, BigFileOFF = 0 };  // reserve for future
+		enum SuffixMode:uint8_t { SuffixModeOn = 1, SuffixModeOff = 0 };
+		bool operator()(const std::string& path, const std::string& dst, const std::vector<std::string>& list, SuffixMode smd = SuffixModeOff);
 		std::vector<std::string>& getList()
 		{
 			return list_;

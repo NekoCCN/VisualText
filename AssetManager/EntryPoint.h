@@ -1,3 +1,6 @@
+#pragma once
+#ifndef VISUALTEXT_ASSETMANAGER_ENTRYPOINT_H
+#define VISUALTEXT_ASSETMANAGER_ENTRYPOINT_H
 #include "AssetPackStream/AssetPackStream.h"
 #include "AssetPack/AssetPack.h"
 #include <memory>
@@ -13,7 +16,7 @@ namespace vtasset
 	{
 	public:
 		typedef std::pair<ProgramIndex, std::vector<std::pair<uint64_t, std::shared_ptr<char> > > > resolver_pair;
-		AssetResolver(std::string path, uint32_t buffer_size) : AP_(path), buffer_size_(buffer_size)
+		AssetResolver(const std::string& path, const uint32_t buffer_size) : AP_(path), buffer_size_(buffer_size)
 		{  }
 		std::shared_ptr<std::condition_variable> getConditionVariable()
 		{
@@ -23,9 +26,9 @@ namespace vtasset
 		{
             will_exit_ = true;
 		}
-		void operator>>(resolver_pair& RP)
+		void operator>>(resolver_pair& rp)
 		{
-			while (!resolver_queue_.try_pop(RP))
+			while (!resolver_queue_.try_pop(rp))
 			{
 				cv_p_->notify_one();
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -45,3 +48,5 @@ namespace vtasset
 		uint32_t buffer_size_ = 5;
 	};
 }
+
+#endif

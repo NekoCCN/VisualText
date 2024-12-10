@@ -44,7 +44,7 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 			++file_num_;
 		}
 	}
-	fs.write((const char*)&file_num_, sizeof(uint32_t));
+	fs.write(reinterpret_cast<const char*>(&file_num_), sizeof(uint32_t));
 
 	toc_ = new uint64_t[file_num_];  // File Part2 : TOC
 	uint32_t toc_index = 1;
@@ -67,18 +67,18 @@ bool vtasset::BinaryPackGenApplication::suffixGen(std::string src, std::string d
 			++toc_index;
 		}
 	}
-	fs.write((char*)toc_, (file_num_ + 1) * sizeof(uint64_t));
+	fs.write(reinterpret_cast<char*>(toc_), (file_num_ + 1) * sizeof(uint64_t));
 
 	uint64_t size;  // File Part3 : Resources
 	bool flag = false;
 	char* buffer{};
-	const uint64_t max_buffer_size = 209715200ll;
-	const uint64_t error_buffer_size = 52428800ll;
 	for (const auto& suffix : list_)  // This is a nesting hell. Sooner or later it will have to be rewritten using lambda expression.
 	{
 		index = 1;
 		while (SDL_GetStoragePathInfo(storage, (file_name = std::to_string(index++) + "." + suffix).c_str(), nullptr))
 		{
+			constexpr uint64_t error_buffer_size = 52428800ll;
+			constexpr uint64_t max_buffer_size = 209715200ll;
 			SDL_GetStorageFileSize(storage, file_name.c_str(), &size);
 			if (size >= max_buffer_size)
 			{
@@ -209,25 +209,25 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 
 	std::string file_name;  // File Part1 : file check
 	file_num_ = list_.size();
-	for (const auto& file_name : list_)
+	for (const auto& name : list_)
 	{
-		if (!SDL_GetStoragePathInfo(storage, file_name.c_str(), nullptr))
+		if (!SDL_GetStoragePathInfo(storage, name.c_str(), nullptr))
 		{
 			std::ostringstream ost;
-			ost << file_name << " in the list does not exist";
+			ost << name << " in the list does not exist";
 			vtcore::lst.logIn(ost.str(), logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 			return false;
 		}
 	}
-	fs.write((const char*)&file_num_, sizeof(uint32_t));
+	fs.write(reinterpret_cast<const char*>(&file_num_), sizeof(uint32_t));
 
 	toc_ = new uint64_t[file_num_ + 1];  // File Part2 : TOC
 	uint32_t toc_index = 1;
 	uint64_t offset_tmp;
 	toc_[0] = 0;
-	for (const auto& file_name : list_)
+	for (const auto& name : list_)
 	{
-		SDL_GetStorageFileSize(storage, file_name.c_str(), &offset_tmp);
+		SDL_GetStorageFileSize(storage, name.c_str(), &offset_tmp);
 		if (toc_index == 1)
 		{
 			toc_[toc_index] = offset_tmp;
@@ -238,16 +238,16 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 		}
 		++toc_index;
 	}
-	fs.write((char*)toc_, (file_num_ + 1) * sizeof(uint64_t));
+	fs.write(reinterpret_cast<char*>(toc_), (file_num_ + 1) * sizeof(uint64_t));
 
 	uint64_t size;  // File Part3 : Resources
 	char* buffer{};
 	bool flag = false;
-	const uint64_t max_buffer_size = 209715200ll;
-	const uint64_t error_buffer_size = 52428800ll;
-	for (const auto& file_name : list_)  // This is a nesting hell. Sooner or later it will have to be rewritten using lambda expression.
+	for (const auto& name : list_)  // This is a nesting hell. Sooner or later it will have to be rewritten using lambda expression.
 	{
-		SDL_GetStorageFileSize(storage, file_name.c_str(), &size);
+		constexpr uint64_t error_buffer_size = 52428800ll;
+		constexpr uint64_t max_buffer_size = 209715200ll;
+		SDL_GetStorageFileSize(storage, name.c_str(), &size);
 		if (size >= max_buffer_size)
 		{
 			try
@@ -268,28 +268,28 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 					throw out_of_memory();
 				}
 				uint32_t cycle = size / error_buffer_size;
-				vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				vtcore::lst.logIn(std::string("Include file ") + name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 				for (int i = 0; i < cycle; ++i)
 				{
-					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
+					SDL_ReadStorageFile(storage, name.c_str(), buffer, error_buffer_size);
 					fs.write(buffer, error_buffer_size);
 				}
 				size %= max_buffer_size;
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				SDL_ReadStorageFile(storage, name.c_str(), buffer, size);
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
 			if (flag == false)
 			{
 				uint32_t cycle = size / max_buffer_size;
-				vtcore::lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				vtcore::lst.logIn(std::string("Include file ") + name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 				for (int i = 0; i < cycle; ++i)
 				{
-					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, max_buffer_size);
+					SDL_ReadStorageFile(storage, name.c_str(), buffer, max_buffer_size);
 					fs.write(buffer, max_buffer_size);
 				}
 				size %= max_buffer_size;
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				SDL_ReadStorageFile(storage, name.c_str(), buffer, size);
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
@@ -301,7 +301,7 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 			{
 				buffer = new char[size];
 			}
-			catch (std::bad_alloc)
+			catch (std::bad_alloc&)
 			{
 				flag = true;
 				lst.logIn("Memory overflow occurred while creating binary pack. Try increase buffer size", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
@@ -309,27 +309,27 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 				{
 					buffer = new char[error_buffer_size];
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					lst.logIn("Memory overflow occurred while creating binary pack in minimum memory allocation", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 					throw out_of_memory();
 				}
 				uint32_t cycle = size / error_buffer_size;
-				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				lst.logIn(std::string("Include file ") + name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
 				for (int i = 0; i < cycle; ++i)
 				{
-					SDL_ReadStorageFile(storage, file_name.c_str(), buffer, error_buffer_size);
+					SDL_ReadStorageFile(storage, name.c_str(), buffer, error_buffer_size);
 					fs.write(buffer, error_buffer_size);
 				}
 				size %= max_buffer_size;
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				SDL_ReadStorageFile(storage, name.c_str(), buffer, size);
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
 			if (flag == false)
 			{
-				lst.logIn(std::string("Include file ") + file_name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
-				SDL_ReadStorageFile(storage, file_name.c_str(), buffer, size);
+				lst.logIn(std::string("Include file ") + name, logsys::LOG_PRIORITY_INFO, logsys::LOG_CATEGORY_ASSERT);
+				SDL_ReadStorageFile(storage, name.c_str(), buffer, size);
 				fs.write(buffer, size);
 				delete[] buffer;
 			}
@@ -339,10 +339,10 @@ bool vtasset::BinaryPackGenApplication::fileNameGen(std::string src, std::string
 	fs.close();
 	return true;
 }
-bool vtasset::BinaryPackGenApplication::operator()(std::string path, std::string dst, const std::vector<std::string>& list, SuffixMode smd)  // dont add dot(.)
+bool vtasset::BinaryPackGenApplication::operator()(const std::string& path, const std::string& dst, const std::vector<std::string>& list, SuffixMode smd)  // dont add dot(.)
 {
 	using namespace vtcore;
-	is_suffix_mode_ = (bool)smd;
+	is_suffix_mode_ = static_cast<bool>(smd);
 	if (is_suffix_mode_ == false)
 		return fileNameGen(path, dst, list);
 	else

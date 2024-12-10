@@ -1,6 +1,6 @@
 #include "BinaryPack.h"
 
-vtasset::BinaryPack::BinaryPack(std::string path)
+vtasset::BinaryPack::BinaryPack(const std::string& path)
 {
 	using namespace vtcore;
 	fs_.open(path, std::ios_base::in | std::ios_base::binary);
@@ -9,8 +9,8 @@ vtasset::BinaryPack::BinaryPack(std::string path)
 		lst.logIn("Path is not exist", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		throw path_not_exists();
 	}
-	char* str = new char[label_offset];
-	char label[22] = "VisualTextBinaryPack;";
+	auto const str = new char[label_offset];
+	constexpr char label[22] = "VisualTextBinaryPack;";
 	fs_.read(str, label_offset);
 	for (uint32_t i = 0; i < 22; ++i)
 	{
@@ -23,9 +23,9 @@ vtasset::BinaryPack::BinaryPack(std::string path)
 	delete[] str;
 
 	is_ready_ = true;
-	fs_.read((char*)&file_num_, sizeof(uint32_t));
+	fs_.read(reinterpret_cast<char*>(&file_num_), sizeof(uint32_t));
 	toc_ = new uint64_t[file_num_ + 1];
-	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	fs_.read(reinterpret_cast<char*>(toc_), sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }
 vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
@@ -37,8 +37,8 @@ vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
 		lst.logIn("Path is not exist", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		throw path_not_exists();
 	}
-	char* str = new char[label_offset];
-	char label[22] = "VisualTextBinaryPack;";
+	const auto str = new char[label_offset];
+	constexpr char label[22] = "VisualTextBinaryPack;";
 	fs_.read(str, label_offset);
 	for (uint32_t i = 0; i < 22; ++i)
 	{
@@ -49,42 +49,42 @@ vtasset::BinaryPack::BinaryPack(std::ifstream& fs)
 		}
 	}
 	is_ready_ = true;
-	fs_.read((char*)&file_num_, sizeof(uint32_t));
+	fs_.read(reinterpret_cast<char*>(&file_num_), sizeof(uint32_t));
 	toc_ = new uint64_t[file_num_ + 1];
-	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	fs_.read(reinterpret_cast<char*>(toc_), sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 }
-bool vtasset::BinaryPack::loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_size)
+bool vtasset::BinaryPack::loadToBuffer_s(const uint32_t index, char* buffer, const uint64_t buffer_size)
 {
 	using namespace vtcore;
 	if (buffer_size < toc_[index])
-		return 0;
+		return false;
 	if (file_num_ < index + 1)
-		return 0;
-	uint64_t offset = toc_[index];
+		return false;
+	const uint64_t offset = toc_[index];
 	fs_.seekg(offset + resource_offset_, std::ios_base::beg);
 	fs_.read(buffer, getBufferSize(index));
-	return 1;
+	return true;
 }
-bool vtasset::BinaryPack::loadToBuffer(uint32_t index, char* buffer)
+bool vtasset::BinaryPack::loadToBuffer(const uint32_t index, char* buffer)
 {
 	using namespace vtcore;
 	if (file_num_ < index + 1)
-		return 0;
-	uint64_t offset = toc_[index];
+		return false;
+	const uint64_t offset = toc_[index];
 	fs_.seekg(offset + resource_offset_, std::ios_base::beg);
 	fs_.read(buffer, toc_[index]);
-	return 1;
+	return true;
 }
-uint32_t vtasset::BinaryPack::getFileNum(uint32_t index)
+uint32_t vtasset::BinaryPack::getFileNum(uint32_t index) const
 {
 	return file_num_;
 }
-uint64_t vtasset::BinaryPack::getBufferSize(uint32_t index)
+uint64_t vtasset::BinaryPack::getBufferSize(const uint32_t index) const
 {
 	return toc_[index + 1] - toc_[index];
 }
-char* vtasset::BinaryPack::operator[](uint32_t index)
+char* vtasset::BinaryPack::operator[](const uint32_t index)
 {
 	if (file_num_ < index + 1)
 		return nullptr;
@@ -93,7 +93,7 @@ char* vtasset::BinaryPack::operator[](uint32_t index)
 	fs_.read(tmp, getBufferSize(index));
 	return tmp;
 }
-bool vtasset::BinaryPack::open(std::string path)
+bool vtasset::BinaryPack::open(const std::string& path)
 {
 	using namespace vtcore;
 	fs_.open(path, std::ios_base::in | std::ios_base::binary);
@@ -102,8 +102,8 @@ bool vtasset::BinaryPack::open(std::string path)
 		lst.logIn("Path is not exist", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
-	char* str = new char[label_offset];
-	char label[22] = "VisualTextBinaryPack;";
+	const auto str = new char[label_offset];
+	constexpr char label[22] = "VisualTextBinaryPack;";
 	fs_.read(str, label_offset);
 	for (uint32_t i = 0; i < 22; ++i)
 	{
@@ -115,9 +115,9 @@ bool vtasset::BinaryPack::open(std::string path)
 	}
 	is_ready_ = true;
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
-	fs_.read((char*)&file_num_, sizeof(uint32_t));
+	fs_.read(reinterpret_cast<char*>(&file_num_), sizeof(uint32_t));
 	toc_ = new uint64_t[file_num_ + 1];
-	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	fs_.read(reinterpret_cast<char*>(toc_), sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 	return true;
 }
@@ -130,8 +130,8 @@ bool vtasset::BinaryPack::open(std::ifstream& fs)
 		lst.logIn("Path is not exist", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		return false;
 	}
-	char* str = new char[label_offset];
-	char label[22] = "VisualTextBinaryPack;";
+	const auto str = new char[label_offset];
+	constexpr char label[22] = "VisualTextBinaryPack;";
 	fs_.read(str, label_offset);
 	for (uint32_t i = 0; i < 22; ++i)
 	{
@@ -143,9 +143,9 @@ bool vtasset::BinaryPack::open(std::ifstream& fs)
 	}
 	is_ready_ = true;
 	resource_offset_ = sizeof(uint64_t) * file_num_ + sizeof(uint32_t) + label_offset;
-	fs_.read((char*)&file_num_, sizeof(uint32_t));
+	fs_.read(reinterpret_cast<char*>(&file_num_), sizeof(uint32_t));
 	toc_ = new uint64_t[file_num_ + 1];
-	fs_.read((char*)toc_, sizeof(uint64_t) * (file_num_ + 1));
+	fs_.read(reinterpret_cast<char*>(toc_), sizeof(uint64_t) * (file_num_ + 1));
 	resource_offset_ = sizeof(uint64_t) * (file_num_ + 1) + sizeof(uint32_t) + label_offset;
 	return true;
 }

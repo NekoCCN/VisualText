@@ -1,3 +1,6 @@
+#pragma once
+#ifndef VISUALTEXT_CORE_TRANSFORM_TRANSFORM_H
+#define VISUALTEXT_CORE_TRANSFORM_TRANSFORM_H
 #include <SDL3/SDL.h>
 #include <memory>
 
@@ -9,3 +12,4 @@ namespace vtcore
 		void box_blur(SDL_Surface* src, SDL_Surface* dst, int radius, bool repeat);
 	}
 }
+#endif // VISUALTEXT_CORE_TRANSFORM_TRANSFORM_H

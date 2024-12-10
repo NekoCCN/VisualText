@@ -25,12 +25,12 @@ namespace vtcore
 			}
 			monitor_list_ = SDL_GetDisplays(nullptr);
 		}
-		int32_t getMonitorNum()
+		int32_t getMonitorNum() const
 		{
 			return monitor_num_;
 		}
-		SDL_Rect getDisplayBound(int32_t index);  //index from 0 to monitor num - 1
-		void getDisplayBound(int32_t index, SDL_Rect* pt);
+		SDL_Rect getDisplayBound(int32_t index) const;  //index from 0 to monitor num - 1
+		void getDisplayBound(int32_t index, SDL_Rect* pt) const;
 		void refresh()
 		{
 			monitor_num_ = SDL_GetNumVideoDrivers();
@@ -40,11 +40,11 @@ namespace vtcore
 			}
 			monitor_list_ = SDL_GetDisplays(nullptr);
 		}
-		std::vector<SDL_DisplayID> getMonitorLists()
+		std::vector<SDL_DisplayID> getMonitorLists() const
 		{
 			return std::vector<SDL_DisplayID>(monitor_list_, monitor_list_ + monitor_num_ - 1);
 		}
-		const char* getMonitorName(int32_t index)
+		const char* getMonitorName(int32_t index) const
 		{
 			if (!(index <= monitor_num_ - 1 && index > 0))  //index from 0 to monitor num - 1
 			{
@@ -53,9 +53,9 @@ namespace vtcore
 			}
 			return SDL_GetDisplayName(monitor_list_[index]);
 		}
-		std::vector<std::string> getMonitorNameList();
-		SDL_DisplayID operator[](int index);
-		std::vector<SDL_Rect> getMonitorBounds()
+		std::vector<std::string> getMonitorNameList() const;
+		SDL_DisplayID operator[](int index) const;
+		std::vector<SDL_Rect> getMonitorBounds() const
 		{
 			std::vector<SDL_Rect> tmp;
 			for (int i = 0; i < monitor_num_; i++)

@@ -12,7 +12,7 @@ void vtresolution::MDResolutionApplication::split_string(const std::string& str)
 
 	while (ss.fail())
 	{
-		split_string_buffer.push_back(tmp);
+		split_string_buffer_.push_back(tmp);
 		ss >> tmp;
 	}
 }
@@ -21,11 +21,11 @@ std::string vtresolution::MDResolutionApplication::getPathFromBracket(const std:
 	int l_tmp = str.find_first_of('(');
 	int r_tmp = str.find_last_of(')');
 	if (l_tmp == std::string::npos || r_tmp == std::string::npos)
-		return std::string();
+		return {};
 	return str.substr(l_tmp + 1, r_tmp - l_tmp - 1);
 }
 vtresolution::MDResolutionApplication::MDResolutionApplication(const std::string& md_file_path, const std::string& asset_path, const std::string& dst_path)
-	: APS_(asset_path, dst_path)
+	: aps_(asset_path, dst_path)
 {
 	using namespace vtcore;
 	if (SDL_GetPathInfo(dst_path.c_str(), nullptr))
@@ -47,9 +47,7 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 
 	uint64_t line = 0;
 
-	uint64_t num_tmp;
 	vtcore::command::CommandList command;
-	size_t l_tmp, r_tmp;
 
 	fs_.seekg(0, std::ios::beg);
 
@@ -102,12 +100,12 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 		{
 		case vtcore::command::create_character:
 		{
-			if (split_string_buffer.size() > 3 || split_string_buffer.size() < 2)
+			if (split_string_buffer_.size() > 3 || split_string_buffer_.size() < 2)
 			{
 				errorReset("Syntax Error");
 				return false;
 			}
-			if (split_string_buffer[1][0] != '!')
+			if (split_string_buffer_[1][0] != '!')
 			{
 				errorReset("Error declare of asset(image)");
 				return false;
@@ -115,13 +113,13 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 
 			vtasset::ProgramIndexPushStruct PIPS;
 
-			if (split_string_buffer.size() == 2)
+			if (split_string_buffer_.size() == 2)
 			{
 				try
 				{
-					PIPS = CSF_.get_create_character_PIPS_and_create_asset(getPathFromBracket(split_string_buffer[1]), APS_, 20);
+					PIPS = CSF_.get_create_character_PIPS_and_create_asset(getPathFromBracket(split_string_buffer_[1]), aps_, 20);
 				}
-				catch (std::exception& e)
+				catch (std::exception&)
 				{
 					errorReset("Error to find asset(image), Did path right?");
 					return false;
@@ -132,9 +130,9 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 				uint32_t speed;
 				try
 				{
-					speed = std::stoi(split_string_buffer[2]);
+					speed = std::stoi(split_string_buffer_[2]);
 				}
-				catch (const std::exception& e)
+				catch (const std::exception&)
 				{
 					errorReset("Error to find asset(image), Did path right?");
 					return false;
@@ -146,17 +144,18 @@ uint64_t vtresolution::MDResolutionApplication::resolutionDefine()
 				}
 				try
 				{
-					PIPS = CSF_.get_create_character_PIPS_and_create_asset(getPathFromBracket(split_string_buffer[1]), APS_, speed);
+					PIPS = CSF_.get_create_character_PIPS_and_create_asset(getPathFromBracket(split_string_buffer_[1]), aps_, speed);
 				}
-				catch (std::exception& e)
+				catch (std::exception&)
 				{
 					errorReset("Error to find asset(image), Did path right?");
 					return false;
 				}
 			}
-			character_define_list_.push_back({ split_string_buffer[1], PIPS });
+			character_define_list_.push_back({ split_string_buffer_[1], PIPS });
 			break;
-		}		
+		}
+		default: ;
 		}
 
 	}
@@ -192,16 +191,17 @@ vtasset::ProgramIndexPushStruct vtresolution::MDResolutionApplication::resolutio
 		ss << string_buffer;
 		if (ss.fail())
 			throw vtcore::syntax_error_error();
-		PIPS = CSF_.get_to_main_textbox_PIPS(string_buffer);
+		PIPS = vtresolution::CommandStringFactory::get_to_main_textbox_PIPS(string_buffer);
 		return PIPS;
 
 	case vtcore::command::draw_character:
 		ss << string_buffer;
 		if (ss.fail())
 			throw vtcore::syntax_error_error();
-		PIPS = CSF_.get_draw_character_PIPS(string_buffer);
+		PIPS = vtresolution::CommandStringFactory::get_draw_character_PIPS(string_buffer);
 		return PIPS;
-
+	default:
+		return {};
 	}
 }
 std::vector<vtasset::ProgramIndexPushStruct> vtresolution::MDResolutionApplication::resolutionCommandStatement(std::string str)
@@ -255,7 +255,7 @@ bool vtresolution::MDResolutionApplication::entryPoint()
 			try
 			{
 				for (auto& x : commandList)
-					APS_ << x;
+					aps_ << x;
 			}
 			catch (std::exception& e)
 			{

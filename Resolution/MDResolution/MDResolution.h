@@ -22,9 +22,7 @@ namespace vtresolution
 	class MDResolutionApplication
 	{
 	private:
-		CommandStringFactory CSF_;
-
-		vtasset::AssetPackStream APS_;
+		vtasset::AssetPackStream aps_;
 		std::ifstream fs_;
 		bool is_ready;
 		typedef std::pair<std::string, vtasset::ProgramIndexPushStruct> DefinePair;
@@ -36,7 +34,7 @@ namespace vtresolution
 
 		std::vector<std::string> split_string_buffer_;
 		void split_string(const std::string& str);
-		std::string getPathFromBracket(const std::string& str);
+		static std::string getPathFromBracket(const std::string& str);
 
 		typedef std::pair<std::string, uint32_t> filename_to_toc_index_;
 

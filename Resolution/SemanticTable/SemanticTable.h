@@ -3,7 +3,6 @@
 #define VT_RESOLUTION_SEMINTICTABLE_SEMINTICTABLE_H
 #include <vector>
 #include <string>
-#include <map>
 #include <algorithm>
 #include <Core/CommandList/CommandList.h>
 

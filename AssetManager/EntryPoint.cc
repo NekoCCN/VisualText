@@ -4,7 +4,7 @@
 bool vtasset::AssetResolver::start()
 {
 	resolver_pair tmp_buf;
-	MemoryBuffer MB;
+	MemoryBuffer mb;
 	
 	while (will_exit_ == false)
 	{
@@ -14,8 +14,8 @@ bool vtasset::AssetResolver::start()
 			tmp_buf.second.resize(tmp_buf.first.asset_list_index_size);
 			for (int i = 0; i < tmp_buf.first.asset_list_index_size; ++i)
 			{
-				AP_.getMemoryBuffer(tmp_buf.first.asset_list_index[i], MB);
-				tmp_buf.second[0] = { MB.getBufferByte(), MB.getBufferPoint() };
+				AP_.getMemoryBuffer(tmp_buf.first.asset_list_index[i], mb);
+				tmp_buf.second[0] = { mb.getBufferByte(), mb.getBufferPoint() };
 			}
 			resolver_queue_.push(tmp_buf);
 		}

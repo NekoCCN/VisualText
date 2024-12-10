@@ -1,12 +1,9 @@
 #pragma once
-#ifndef VISUALTEXT_ASSETMANAGER_ASSETPACK_ASSETPACK_H_
-#define VISUALTEXT_ASSETMANAGER_ASSETPACK_ASSETPACK_H_
+#ifndef VISUALTEXT_ASSETMANAGER_ASSETPACK_ASSETPACK_H
+#define VISUALTEXT_ASSETMANAGER_ASSETPACK_ASSETPACK_H
 #include <Core/LogSystem/LogSystem.h>
 #include <vector>
 #include <cstdint>
-#include <vector>
-#include <memory>
-#include <utility>
 #include "../AssetPackStream/AssetPackStream.h"
 #include "../MemoryBuffer/MemoryBuffer.h"
 
@@ -41,16 +38,20 @@ namespace vtasset
 		std::string label_ = "VisualTextAssetPack;";
 	public:
 		AssetPack(const std::string& path);
+		AssetPack(const AssetPack& as) = delete;
+		AssetPack(AssetPack&& as) = default;
+		AssetPack& operator=(const AssetPack& as) = delete;
+		AssetPack& operator=(AssetPack&& as) = default;
 		~AssetPack()
 		{
 			delete[] program_index_list_;
 			delete[] node_list_;
 			delete[] toc_;
 		}
-		uint64_t getFileByte(uint32_t index);
-		AssetPack& operator>>(ProgramIndex& PI);
+		uint64_t getFileByte(uint32_t index) const;
+		AssetPack& operator>>(ProgramIndex& pi);
 		bool goProgramIndex(uint32_t index);
-		bool getMemoryBuffer(uint32_t index, MemoryBuffer& MBuffer);
+		bool getMemoryBuffer(uint32_t index, MemoryBuffer& m_buffer);
 	};
 }
 

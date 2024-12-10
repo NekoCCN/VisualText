@@ -51,28 +51,28 @@ namespace vtcore
 	class path_not_exists : public asset_manage_init_error
 	{
 	public:
-		virtual const char* what() { return "[FATAL][Asset] Asset path is not found!"; }
+		const char* what() override { return "[FATAL][Asset] Asset path is not found!"; }
 	};
 	class SDL_error : public std::exception
 	{
 	public:
 		virtual const char* what() { return "[FATAL][Video] Windows System Error!"; }
-		const char* getErrorMsg() { return SDL_GetError(); }
+		static const char* getErrorMsg() { return SDL_GetError(); }
 	};
 	class SDL_init_error : public SDL_error
 	{
 	public:
-		virtual const char* what() { return "[FATAL][Video] Windows System Init Error!"; }
+		const char* what() override { return "[FATAL][Video] Windows System Init Error!"; }
 	};
 	class monitor_index_error : public SDL_error
 	{
 	public:
-		virtual const char* what() { return "[FATAL][Video] Invalid monitor index"; }
+		const char* what() override { return "[FATAL][Video] Invalid monitor index"; }
 	};
 	class create_window_error : public SDL_error
 	{
 	public:
-		virtual const char* what() { return "[FATAL][Video] Can`t create window!"; }
+		const char* what() override { return "[FATAL][Video] Can`t create window!"; }
 	};
 	class out_of_memory : public std::exception
 	{

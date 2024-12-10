@@ -1,6 +1,6 @@
 #pragma once
-#ifndef VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H_
-#define VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H_
+#ifndef VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H
+#define VISUALTEXT_ASSETMANAGER_ASSETPACKSTREAM_ASSETPACKSTREAM_H
 #include <Core/Exception/Exception.h>
 #include <Core/LogSystem/LogSystem.h>
 #include <Core/CommandList/CommandList.h>
@@ -60,7 +60,7 @@ namespace vtasset
 
 		SDL_Storage* storage_;
 		std::ofstream fs_;
-		bool is_ready = true;
+		bool is_ready_ = true;
 		std::string label_ = "VisualTextAssetPack;";
 		bool is_initialized_ = false;
 		std::vector<std::string> img_suffix_list_;
@@ -69,13 +69,14 @@ namespace vtasset
 
 		std::map<std::string, uint32_t> reuse_asset_map_;
 	public:
-		AssetPackStream(std::string path, std::string dst);
+		AssetPackStream(const std::string& path, const std::string& dst);
 		AssetPackStream& operator<<(const ProgramIndexPushStruct PIPS);
 		bool endPackFile();
-		size_t getTocTopIndex()
+		size_t getTocTopIndex() const
 		{
 			return toc_.size() - 1;
 		}
+
 		~AssetPackStream();
 	};
 }

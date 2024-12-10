@@ -1,7 +1,7 @@
 #include "Font.h"
 #include <Core/LogSystem/LogSystem.h>
 
-vttexture::Font::Font(SDL_IOStream* iostream, float ptsize, bool closeio)
+vttexture::Font::Font(SDL_IOStream* iostream, float ptsize, bool closeio) : buffer_(nullptr)
 {
 	font_ = TTF_OpenFontIO(iostream, closeio, ptsize);
 	if (font_ == nullptr)
@@ -9,10 +9,10 @@ vttexture::Font::Font(SDL_IOStream* iostream, float ptsize, bool closeio)
 		vtcore::lst.logIn("Font creation failed, maybe can not open font file");
 	}
 }
-vttexture::Font::Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize)
+vttexture::Font::Font(vtasset::BinaryPack& bp, uint32_t index, float ptsize)
 {
-	buffer_ = BP[index];
-	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer_, BP.getBufferSize(index));
+	buffer_ = bp[index];
+	SDL_IOStream* iostream = SDL_IOFromMem((void*)buffer_, bp.getBufferSize(index));
 	font_ = TTF_OpenFontIO(iostream, true, ptsize);
 	if (font_ == nullptr)
 	{
@@ -20,7 +20,7 @@ vttexture::Font::Font(vtasset::BinaryPack& BP, uint32_t index, float ptsize)
 		vtcore::lst.logIn(SDL_GetError(), vtcore::logsys::LOG_PRIORITY_ERROR, vtcore::logsys::LOG_CATEGORY_VIDEO);
 	}
 }
-SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color foreground, int32_t wrap_length, size_t length)
+SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color foreground, int32_t wrap_length, size_t length) const
 {
 	if (wrap_length != 0)
 	{
@@ -43,7 +43,7 @@ SDL_Surface* vttexture::Font::getTextSurface_Blended(const char* text, SDL_Color
 		return surface;
 	}
 }
-SDL_Surface* vttexture::Font::getTextSurface_LCD(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length)
+SDL_Surface* vttexture::Font::getTextSurface_LCD(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length) const
 {
 	if (wrap_length != 0)
 	{
@@ -66,7 +66,7 @@ SDL_Surface* vttexture::Font::getTextSurface_LCD(const char* text, SDL_Color for
 		return surface;
 	}
 }
-SDL_Surface* vttexture::Font::getTextSurface_Shaded(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length)
+SDL_Surface* vttexture::Font::getTextSurface_Shaded(const char* text, SDL_Color foreground, SDL_Color background, int32_t wrap_length, size_t length) const
 {
 	if (wrap_length != 0)
 	{

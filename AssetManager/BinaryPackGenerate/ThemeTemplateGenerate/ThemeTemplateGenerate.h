@@ -8,9 +8,9 @@ namespace vtasset
 	class ThemeTemplateGenerator : protected ThemeAssetList
 	{
 	private:
-		BinaryPackGenApplication BPGA_;
+		BinaryPackGenApplication bpga_;
 	public:
-		bool newGenerator(std::string path, std::string dst);
+		bool newGenerator(const std::string& path, const std::string& dst);
 		bool incrementGenerator(std::string path, std::string dst);
 	};
 }

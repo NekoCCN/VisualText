@@ -2,6 +2,9 @@
 * @author Ext Culith
 **/
 
+#pragma once
+#ifndef VISUALTEXT_CORE_POINTFUNCTION_H
+#define VISUALTEXT_CORE_POINTFUNCTION_H
 #include "../Monitor/Monitor.h"
 #include <SDL3/SDL.h>
 #include <cstdint>
@@ -18,3 +21,4 @@ namespace vtcore
 		
 	};
 }
+#endif // VISUALTEXT_CORE_POINTFUNCTION_H

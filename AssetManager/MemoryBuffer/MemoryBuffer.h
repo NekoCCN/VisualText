@@ -15,7 +15,9 @@ namespace vtasset
 	public:
 		friend class AssetPack;
 		MemoryBuffer() = default;
-		MemoryBuffer(std::shared_ptr<char> buffer, uint64_t byte_size) noexcept
+        MemoryBuffer(MemoryBuffer&) = delete;
+		MemoryBuffer& operator=(const MemoryBuffer&) = delete;
+		MemoryBuffer(const std::shared_ptr<char>& buffer, uint64_t byte_size) noexcept
 		{
 			buffer_ = buffer;
 			byte_size_ = byte_size;
@@ -33,8 +35,9 @@ namespace vtasset
 			buffer.byte_size_ = 0;
 		}
 		~MemoryBuffer()
-		{  }
-		uint64_t getBufferByte()
+		= default;
+
+		uint64_t getBufferByte() const
 		{
 			return byte_size_;
 		}
@@ -50,7 +53,7 @@ namespace vtasset
 			buffer.byte_size_ = 0;
 			return *this;
 		}
-		bool isEmpty()
+		bool isEmpty() const
 		{
 			return ( buffer_ == nullptr || byte_size_ == 0 );
 		}

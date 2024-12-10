@@ -1,6 +1,6 @@
 #include "ThemeTemplateGenerate.h"
 
-bool vtasset::ThemeTemplateGenerator::newGenerator(std::string path, std::string dst)
+bool vtasset::ThemeTemplateGenerator::newGenerator(const std::string& path, const std::string& dst)
 {
-	return BPGA_.operator()(path, dst, ThemeTemplateStr, BinaryPackGenApplication::SuffixModeOff);
+	return bpga_.operator()(path, dst, ThemeTemplateStr, BinaryPackGenApplication::SuffixModeOff);
 }

@@ -34,6 +34,7 @@ namespace vtcore
 				if (!(fs_.is_open()))
 					throw logsis_init_error();
 				iscreate_ = true;
+				return *this;
 			}
 			StandardFilePush& enableFile()
 			{
@@ -45,6 +46,7 @@ namespace vtcore
 				if (!(fs_.is_open()))
 					throw logsis_init_error();
 				iscreate_ = true;
+				return *this;
 			}
 			virtual ~StandardFilePush()
 			{
@@ -67,7 +69,7 @@ namespace vtcore
 				if (!(fs.is_open()))
 					throw logsis_init_error();
 			}
-			FilePush& push(std::string str)
+			FilePush& push(const std::string& str)
 			{
 				std::lock_guard<std::mutex> lg(m);
 				fs << str << std::endl;
@@ -145,7 +147,7 @@ namespace vtcore
 			StandardLogStream& setAllPriority(LogPriority _priority_);
 			StandardLogStream& setCategoryPriority(LogCategory category, LogPriority _priority_)
 			{
-				SDL_SetLogPriority(category, (SDL_LogPriority)_priority_);
+				SDL_SetLogPriority(category, static_cast<SDL_LogPriority>(_priority_));
 				return *this;
 			}
 			StandardLogStream& logIn(std::string str, LogPriority priority = LOG_PRIORITY_INFO, LogCategory category = LOG_CATEGORY_APPLICATION);

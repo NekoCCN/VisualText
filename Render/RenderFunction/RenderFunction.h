@@ -19,7 +19,7 @@ namespace vtrender
 		vtcore::PointFunction pf_;
 	public:
 		// must be called after other render function and before Font render function
-		vtcore::Window& renderMainTextBoxUsingGaussianBlur(vtcore::Window& win, uint32_t index);
+		bool renderMainTextBoxUsingGaussianBlur(vtcore::Window& win, uint32_t index);
 	};
 }
 

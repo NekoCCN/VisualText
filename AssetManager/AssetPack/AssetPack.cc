@@ -3,13 +3,16 @@
 vtasset::AssetPack::AssetPack(const std::string& path)
 {
 	using namespace vtcore;
+
 	fs_.open(path, std::ios_base::in | std::ios_base::binary);
 	if (!(fs_.is_open()))
 	{
 		lst.logIn("Path is not exist", logsys::LOG_PRIORITY_ERROR, logsys::LOG_CATEGORY_ASSERT);
 		throw path_not_exists();
 	}
-	char* str = new char[label_.size() + 1];
+
+	auto const str = new char[label_.size() + 1];
+
 	fs_.read(str, label_.size() + 1);
 	for (uint32_t i = 0; i < label_.size(); ++i)
 	{
@@ -39,38 +42,38 @@ vtasset::AssetPack::AssetPack(const std::string& path)
 
 	program_index_pointer_ = program_index_list_;
 }
-uint64_t vtasset::AssetPack::getFileByte(uint32_t index)
+uint64_t vtasset::AssetPack::getFileByte(const uint32_t index) const
 {
 	if (index != toc_num_ - 1)
 		return toc_[index + 1].toc_offset - toc_[index].toc_offset;
 	else
 		return index_offset_ - toc_[index].toc_offset;
 }
-vtasset::AssetPack& vtasset::AssetPack::operator>>(ProgramIndex& PI)
+vtasset::AssetPack& vtasset::AssetPack::operator>>(ProgramIndex& pi)
 {
 	++program_index_pointer_;
-	PI = *(program_index_pointer_ - 1);
+	pi = *(program_index_pointer_ - 1);
 	return *this;
 }
-bool vtasset::AssetPack::goProgramIndex(uint32_t index)
+bool vtasset::AssetPack::goProgramIndex(const uint32_t index)
 {
 	if (index >= program_index_num_ - 1 || index < 0)
 		return false;
     program_index_pointer_ = program_index_list_ + index;
 	return true;
 }
-bool vtasset::AssetPack::getMemoryBuffer(uint32_t index, MemoryBuffer& MBuffer)
+bool vtasset::AssetPack::getMemoryBuffer(const uint32_t index, MemoryBuffer& m_buffer)
 {
 	if (index > toc_num_ - 1 || index < 0)
 		return false;
-	if (MBuffer.isEmpty() != true)
+	if (m_buffer.isEmpty() != true)
 		return false;
-	std::shared_ptr<char> tmp(new char[getFileByte(index)]);
+	const std::shared_ptr<char> tmp(new char[getFileByte(index)]);
 	fs_.seekg(resources_offset_, std::ios_base::beg);
 	fs_.read(tmp.get(), getFileByte(index));
 
-	MBuffer.buffer_ = tmp;
-	MBuffer.byte_size_ = getFileByte(index);
+	m_buffer.buffer_ = tmp;
+	m_buffer.byte_size_ = getFileByte(index);
 
 	return true;
 }

@@ -22,7 +22,7 @@ namespace vtasset
 		bool is_ready_;
 	public:
 		BinaryPack() : is_ready_(false) {  }
-		BinaryPack(std::string path);
+		BinaryPack(const std::string& path);
 		BinaryPack(std::ifstream& fs);
 		bool isReady()
 		{
@@ -30,10 +30,10 @@ namespace vtasset
 		}
 		bool loadToBuffer_s(uint32_t index, char* buffer, uint64_t buffer_size);
 		bool loadToBuffer(uint32_t index, char* buffer);
-		uint32_t getFileNum(uint32_t index);
-		uint64_t getBufferSize(uint32_t index);
+		uint32_t getFileNum(uint32_t index) const;
+		uint64_t getBufferSize(uint32_t index) const;
 		char* operator[](uint32_t index);
-		bool open(std::string path);
+		bool open(const std::string& path);
 		bool open(std::ifstream& fs);
 	};
 }

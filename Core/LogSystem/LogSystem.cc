@@ -14,7 +14,7 @@ void vtcore::logsys::initLogSys()
 }
 vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::setAllPriority(LogPriority _priority_)
 {
-	SDL_LogPriority priority = (SDL_LogPriority)_priority_;
+	SDL_LogPriority priority = static_cast<SDL_LogPriority>(_priority_);
 	SDL_SetLogPriority(LOG_CATEGORY_APPLICATION, priority);
 	SDL_SetLogPriority(LOG_CATEGORY_ASSERT, priority);
 	SDL_SetLogPriority(LOG_CATEGORY_AUDIO, priority);
@@ -34,7 +34,7 @@ vtcore::logsys::StandardFilePush::StandardFilePush(bool st) : iscreate_(st)
 	{
 		std::lock_guard<std::mutex> lg(mtx_);
 		std::ostringstream ost;
-		ost << time(0) << "_Log.log";
+		ost << time(nullptr) << "_Log.log";
 		filename_ = ost.str();
 		fs_.open(filename_);
 		if (!(fs_.is_open()))
@@ -50,7 +50,7 @@ vtcore::logsys::StandardFilePush::StandardFilePush(const char* name) : iscreate_
 }
 vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::operator<<(std::string str)
 {
-	SDL_LogMessage(category_, (SDL_LogPriority)priority_, str.c_str());
+	SDL_LogMessage(category_, static_cast<SDL_LogPriority>(priority_), str.c_str());
 	std::lock_guard<std::mutex> lg(mtx_);
 	if (iscreate_ == true)
 		fs_ << priority_str_[priority_] << category_str_[category_] << str << std::endl;
@@ -58,7 +58,7 @@ vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::operator<<
 }
 vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::operator<<(const char* str)
 {
-	SDL_LogMessage(category_, (SDL_LogPriority)priority_, str);
+	SDL_LogMessage(category_, static_cast<SDL_LogPriority>(priority_), str);
 	std::lock_guard<std::mutex> lg(mtx_);
 	if (iscreate_ == true)
 		fs_ << priority_str_[priority_] << category_str_[category_] << str << std::endl;
@@ -66,7 +66,7 @@ vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::operator<<
 }
 vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::logIn(std::string str, LogPriority priority, LogCategory category)
 {
-	SDL_LogMessage(category, (SDL_LogPriority)priority, str.c_str());
+	SDL_LogMessage(category, static_cast<SDL_LogPriority>(priority), str.c_str());
 	std::lock_guard<std::mutex> lg(mtx_);
 	if (iscreate_ == true)
 		fs_ << priority_str_[priority_] << category_str_[category_] << str << std::endl;
@@ -74,7 +74,7 @@ vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::logIn(std:
 }
 vtcore::logsys::StandardLogStream& vtcore::logsys::StandardLogStream::logIn(const char* str, LogPriority priority, LogCategory category)
 {
-	SDL_LogMessage(category, (SDL_LogPriority)priority, str);
+	SDL_LogMessage(category, static_cast<SDL_LogPriority>(priority), str);
 	std::lock_guard<std::mutex> lg(mtx_);
 	if (iscreate_ == true)
 		fs_ << priority_str_[priority_] << category_str_[category_] << str << std::endl;
